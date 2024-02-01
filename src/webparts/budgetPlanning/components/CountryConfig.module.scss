@@ -1,0 +1,75 @@
+.Container {
+  width: 100%;
+  .HeaderLable {
+    font-size: 28px;
+    color: #202945;
+  }
+  .Header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    .HeaderFilters {
+      width: 80%;
+      display: "flex";
+      gap: 2%;
+      align-items: flex-end;
+      .dropdowns {
+        width: 60%;
+        display: flex;
+        gap: 2%;
+      }
+    }
+  }
+}
+
+.modalHeader {
+  margin-bottom: 20px;
+  h3 {
+    margin: 0;
+    color: #202945;
+  }
+  i {
+    color: #000;
+  }
+}
+
+.noRecords {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  font-weight: 600;
+  font-size: 16px;
+  color: #4d546a;
+}
+
+.refIcon {
+  display: flex;
+  background: #202945;
+  color: "#fff";
+  cursor: pointer;
+  height: 30px;
+  width: 30px;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+  border-radius: 3px;
+}
+
+.deleteIconCircle {
+  height: 46px;
+  width: 46px;
+  border-radius: 50%;
+  background-color: #202945;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: -26px;
+  left: 44%;
+  position: absolute;
+  .deleteImg {
+    i {
+      font-size: 22px;
+      color: #fff;
+    }
+  }
+}

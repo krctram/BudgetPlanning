@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "budget-planning-client-side-solution",
+    "id": "a59c26cf-4d6c-4834-9485-29260d9a95ed",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.14.0"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "BudgetPlanning description"
+      },
+      "longDescription": {
+        "default": "BudgetPlanning description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "budget-planning Feature",
+        "description": "The feature that activates elements of the budget-planning solution.",
+        "id": "f51246e8-17f0-40c7-8974-7bbde4044370",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/budget-planning.sppkg"
+  }
+}

@@ -1,0 +1,197 @@
+.HeaderLable {
+  font-size: 28px;
+  color: #202945;
+}
+
+.btns {
+  width: 8%;
+  height: 33px;
+  border: none;
+  border-radius: 5px;
+  font-weight: 500;
+  background: #2580e0;
+  color: #fff;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.noRecords {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  font-weight: 600;
+  font-size: 16px;
+  color: #4d546a;
+}
+
+.btnContainer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  .leftSection {
+    display: flex;
+    align-items: flex-end;
+    gap: 2%;
+    width: 47%;
+    label {
+      color: rgb(36, 36, 36);
+    }
+    .refresh {
+      color: white;
+      font-size: 16px;
+      cursor: "pointer";
+      background-color: #202945;
+      min-width: 30px;
+      height: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 5px;
+    }
+  }
+  .rightBtns {
+    gap: 2%;
+    display: flex;
+    justify-content: end;
+    width: 100%;
+    .uploadBtn {
+      height: 33px;
+      background-color: #2580e0;
+      color: #fff;
+      border-radius: 5px;
+      border: none;
+      width: 8%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      label {
+        font-weight: 500;
+        color: #000;
+        cursor: pointer;
+      }
+    }
+  }
+}
+
+.modalHeader {
+  margin-bottom: 20px;
+  h3 {
+    margin: 0;
+    color: #202945;
+  }
+  i {
+    color: #000;
+  }
+}
+
+.importBoxView {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  .importBoxHeader {
+    margin: 0;
+    color: #404040;
+  }
+  .importDataView {
+    // height: 180px;
+    height: 100px;
+    overflow-y: auto;
+  }
+  .nodatas {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.boxViewLabel {
+  margin: 5px;
+  display: inline-block;
+  width: 50%;
+}
+
+.importHeader {
+  margin: 10px 0;
+  width: 50%;
+  color: #404040;
+}
+
+.modalTextAndIconFlex {
+  display: flex;
+  // justify-content: space-between;
+  // align-items: center;
+  margin: 10px 0px;
+  .modalTextAndDropFlex {
+    display: flex;
+    width: 85%;
+    justify-content: space-between;
+  }
+}
+
+.errMsg {
+  color: red;
+  font-weight: 600;
+  margin: 10px 0px;
+}
+
+// .cancelIconBtn {
+//   display: flex;
+//   justify-content: flex-end;
+//   width: 100%;
+//   i{
+//     color: #000 !important;
+//   }
+// }
+.importDataView::-webkit-scrollbar {
+  width: 10px;
+  background-color: #f7f7f7;
+}
+
+.importDataView::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background-color: #e7e7e7;
+}
+
+//countryStyle
+.countryModalBox {
+  width: 100%;
+  display: flex;
+  margin: 10px 0;
+}
+
+.countryModalBtnSec {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.countryModalSearchBox {
+  margin-right: 25px;
+}
+
+.contryTextField {
+  width: 77%;
+}
+
+.deleteIconCircle {
+  height: 46px;
+  width: 46px;
+  border-radius: 50%;
+  background-color: #202945;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: -26px;
+  left: 44%;
+  position: absolute;
+  .deleteImg {
+    i {
+      font-size: 22px;
+      color: #fff;
+    }
+  }
+}

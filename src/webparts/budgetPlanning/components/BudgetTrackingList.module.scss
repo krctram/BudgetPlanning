@@ -1,0 +1,108 @@
+.HeaderLable {
+  font-size: 28px;
+  color: #202945;
+}
+
+.noRecords {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  font-weight: 600;
+  font-size: 16px;
+  color: #4d546a;
+}
+
+.btns {
+  width: 100%;
+  height: 33px;
+  border: none;
+  border-radius: 5px;
+  font-weight: 500;
+  background: #2580e0;
+  color: #fff;
+  font-size: 16px;
+}
+
+.refIcon {
+  display: flex;
+  background: #202945;
+  color: "#fff";
+  cursor: pointer;
+  height: 30px;
+  width: 30px;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+  border-radius: 3px;
+}
+
+.export {
+  background-color: #2580e0;
+  width: 10%;
+  height: 33px;
+  border: none;
+  color: #fff;
+  border-radius: 5px;
+  border: none;
+  // font-weight: 500;
+  cursor: pointer;
+}
+
+.accordion {
+  button:focus {
+    border: none !important;
+  }
+  span {
+    font-size: 16px;
+  }
+}
+.tableStyle {
+  border-spacing: 0px !important;
+  td {
+    padding: 0px 10px;
+    height: 42px;
+    border-bottom: 1px solid #adadad;
+    text-align: left;
+  }
+  th {
+    background-color: #ededed;
+    color: #202945;
+    height: 42px;
+    padding: 0px 10px;
+    text-align: left;
+  }
+}
+
+.modalSubmitSection {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.indicatorSection {
+  width: 100%;
+  display: flex;
+  .indicatorWidth {
+    width: 25%;
+    .budgetIndicators {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+      width: 100%;
+      .leftDiv {
+        width: 46%;
+        font-size: 16px;
+      }
+      .righttDiv {
+        font-size: 16px;
+        padding: 4px 10px;
+        border-radius: 4px;
+      }
+    }
+  }
+}
+.dripleDot {
+  width: 80%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}

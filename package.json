@@ -1,0 +1,48 @@
+{
+  "name": "budget-planning",
+  "version": "0.0.1",
+  "private": true,
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "gulp bundle",
+    "clean": "gulp clean",
+    "test": "gulp test",
+    "serve": "gulp bundle --custom-serve --max_old_space_size=4096 && fast-serve"
+  },
+  "dependencies": {
+    "@fluentui/react": "^8.104.1",
+    "@fluentui/react-icons": "^2.0.190",
+    "@microsoft/sp-core-library": "1.14.0",
+    "@microsoft/sp-lodash-subset": "1.14.0",
+    "@microsoft/sp-office-ui-fabric-core": "1.14.0",
+    "@microsoft/sp-property-pane": "1.14.0",
+    "@microsoft/sp-webpart-base": "1.14.0",
+    "@material-ui/core": "^4.12.4",
+    "@material-ui/lab": "^4.0.0-alpha.61",
+    "@pnp/sp": "^2.11.0",
+    "@pnp/spfx-controls-react": "^3.8.0",
+    "alertifyjs": "^1.13.1",
+    "exceljs": "^4.1.1",
+    "file-saver": "^2.0.2",
+    "jquery": "^3.6.0",
+    "moment": "^2.29.3",
+    "office-ui-fabric-react": "7.174.1",
+    "react": "16.13.1",
+    "react-dom": "16.13.1",
+    "react-query": "^3.39.3"
+  },
+  "devDependencies": {
+    "@pnp/sp": "^2.11.0",
+    "spfx-fast-serve-helpers": "~1.14.0",
+    "@types/react": "16.9.51",
+    "@types/react-dom": "16.9.8",
+    "@microsoft/sp-build-web": "1.14.0",
+    "@microsoft/sp-tslint-rules": "1.14.0",
+    "@microsoft/sp-module-interfaces": "1.14.0",
+    "@microsoft/rush-stack-compiler-3.9": "0.4.47",
+    "gulp": "~4.0.2",
+    "ajv": "~5.2.2",
+    "@types/webpack-env": "1.13.1",
+    "office-ui-fabric-react-pagination": "0.0.8"
+  }
+}
