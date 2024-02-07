@@ -559,6 +559,7 @@ const VendorConfig = (props: any): JSX.Element => {
               index: null,
               curDetailsArr: [],
               arrKeys: [],
+              VendorConfig: res[i].VendorConfig ? res[i].VendorConfig : null,
             });
 
             if (res.length === _vendorDetailsList.length) {

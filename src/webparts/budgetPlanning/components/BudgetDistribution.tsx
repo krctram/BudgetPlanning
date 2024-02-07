@@ -197,18 +197,39 @@ const BudgetDistribution = (props: any): JSX.Element => {
                 _getVendorNave("vendorapprove", item.ID);
               }}
             />
-            <Icon
-              iconName="Add"
-              style={{
-                color: "blue",
-                fontSize: "16px",
-                cursor: "pointer",
-              }}
-              onClick={() => {
-                _getVendorNave("vendorconfig", null);
-                setSubCatDet(item);
-              }}
-            />
+            {item.VendorStatus !== "Approved" && (
+              <div>
+                {props.groupUsers.isEnterpricesAdmin ||
+                props.groupUsers.isInfraAdmin ||
+                props.groupUsers.isSpecialAdmin ? (
+                  <Icon
+                    iconName="Add"
+                    style={{
+                      color: "blue",
+                      fontSize: "16px",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => {
+                      _getVendorNave("vendorconfig", null);
+                      setSubCatDet(item);
+                    }}
+                  />
+                ) : (
+                  <Icon
+                    iconName="PageArrowRight"
+                    style={{
+                      color: "blue",
+                      fontSize: "16px",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => {
+                      _getVendorNave("vendorconfig", null);
+                      setSubCatDet(item);
+                    }}
+                  />
+                )}
+              </div>
+            )}
           </div>
         );
       },
@@ -424,23 +445,23 @@ const BudgetDistribution = (props: any): JSX.Element => {
               ID: resCate[i].ID,
               CategoryAcc: resCate[i].Title
                 ? {
-                  ID: resCate[i].ID,
-                  Text: resCate[i].Title,
-                }
+                    ID: resCate[i].ID,
+                    Text: resCate[i].Title,
+                  }
                 : undefined,
               Type: resCate[i].CategoryType ? resCate[i].CategoryType : "",
               Area: resCate[i].Area ? resCate[i].Area : "",
               YearAcc: resCate[i].YearId
                 ? {
-                  ID: resCate[i].Year.ID,
-                  Text: resCate[i].Year.Title,
-                }
+                    ID: resCate[i].Year.ID,
+                    Text: resCate[i].Year.Title,
+                  }
                 : undefined,
               CountryAcc: resCate[i].CountryId
                 ? {
-                  ID: resCate[i].Country.ID,
-                  Text: resCate[i].Country.Title,
-                }
+                    ID: resCate[i].Country.ID,
+                    Text: resCate[i].Country.Title,
+                  }
                 : undefined,
               OverAllBudgetCost: resCate[i].OverAllBudgetCost
                 ? resCate[i].OverAllBudgetCost
@@ -568,6 +589,9 @@ const BudgetDistribution = (props: any): JSX.Element => {
                 ? resBudget[i].RemainingCost
                 : null,
               isDeleted: resBudget[i].isDeleted,
+              VendorStatus: resBudget[i].VendorStatus
+                ? resBudget[i].VendorStatus
+                : "",
               isEdit: false,
               isDummy: false,
               isAdmin: false,
@@ -733,19 +757,20 @@ const BudgetDistribution = (props: any): JSX.Element => {
       let _totalAmount: string = ur.OverAllBudgetCost
         ? ur.OverAllBudgetCost.toString()
         : ur.TotalProposed
-          ? ur.TotalProposed.toString()
-          : "0";
+        ? ur.TotalProposed.toString()
+        : "0";
       varGroup.push({
         key: ur.Category,
         name: ur.Country
-          ? `${ur.Category +
-          " - " +
-          ur.Country +
-          " ( " +
-          ur.Type +
-          " ) ~ AED " +
-          SPServices.format(Number(_totalAmount))
-          }`
+          ? `${
+              ur.Category +
+              " - " +
+              ur.Country +
+              " ( " +
+              ur.Type +
+              " ) ~ AED " +
+              SPServices.format(Number(_totalAmount))
+            }`
           : ur.Category,
         startIndex: ur.indexValue,
         count: recordLength,
@@ -827,180 +852,180 @@ const BudgetDistribution = (props: any): JSX.Element => {
       subCatDet={subCatDet}
     />
   ) : // <VendorConfig
-    //   _getVendorNave={_getVendorNave}
-    //   _getDefaultFunction={_getDefaultFunction}
-    //   groupUsers={props.groupUsers}
-    //   dropValue={props.dropValue}
-    // />
-    isVendorNave.isVendorCreate ? (
-      <Supplier
-        _getVendorNave={_getVendorNave}
-        groupUsers={props.groupUsers}
-        dropValue={props.dropValue}
-        currentUser={props.currentUser}
-      />
-    ) : true ? (
-      <div style={{ width: "100%" }}>
-        {/* Heading section */}
-        <Label className={styles.HeaderLable}>Budget Distribution</Label>
-        {/* Dropdown and btn section */}
-        <div className={styles.filterSection}>
-          {/* Left side section */}
-          <div className={styles.filters}>
-            {/* Country section */}
-            <div style={{ width: "26%" }}>
-              <Label>Country</Label>
-              <Dropdown
-                styles={DropdownStyle}
-                options={[...propDropValue.Country]}
-                selectedKey={_getFilterDropValues(
-                  "Country",
-                  {
-                    ...propDropValue,
-                  },
-                  filCountryDrop
-                )}
-                onChange={(e: any, text: IDrop) => {
-                  _isCurYear = filPeriodDrop == _curYear ? true : false;
-                  setFilCountryDrop(text.text as string);
-                  setIsTrigger(!isTrigger);
-                }}
-              />
-            </div>
-
-            {/* Area section */}
-            <div style={{ width: "26%" }}>
-              <Label>Area</Label>
-              <Dropdown
-                styles={DropdownStyle}
-                options={[...propDropValue.Area]}
-                selectedKey={_getFilterDropValues(
-                  "Area",
-                  { ...propDropValue },
-                  filAreaDrop
-                )}
-                onChange={(e: any, text: IDrop) => {
-                  _isCurYear = filPeriodDrop == _curYear ? true : false;
-                  setFilAreaDrop(text.text as string);
-                  setIsTrigger(!isTrigger);
-                }}
-              />
-            </div>
-
-            {/* Period section */}
-            <div style={{ width: "10%" }}>
-              <Label>Period</Label>
-              <Dropdown
-                styles={DropdownStyle}
-                options={[...propDropValue.Period]}
-                selectedKey={_getFilterDropValues(
-                  "Period",
-                  { ...propDropValue },
-                  filPeriodDrop
-                )}
-                onChange={(e: any, text: IDrop) => {
-                  _isCurYear = (text.text as string) == _curYear ? true : false;
-                  setFilPeriodDrop(text.text as string);
-                  setIsTrigger(!isTrigger);
-                }}
-              />
-            </div>
-
-            {/* Type section */}
-            <div style={{ width: "10%" }}>
-              <Label>Type</Label>
-              <Dropdown
-                styles={DropdownStyle}
-                options={[...propDropValue.Type]}
-                selectedKey={_getFilterDropValues(
-                  "Type",
-                  { ...propDropValue },
-                  filTypeDrop
-                )}
-                onChange={(e: any, text: IDrop) => {
-                  _isCurYear = filPeriodDrop == _curYear ? true : false;
-                  setFilTypeDrop(text.text as string);
-                  setIsTrigger(!isTrigger);
-                }}
-              />
-            </div>
-
-            {/* Over all refresh section */}
-            <div
-              className={styles.refIcon}
-              onClick={() => {
-                _isCurYear = true;
-                setFilPeriodDrop(
-                  propDropValue.Period[propDropValue.Period.length - 1].text
-                );
-                setFilCountryDrop("All");
-                setFilTypeDrop("All");
-                setFilAreaDrop("All");
+  //   _getVendorNave={_getVendorNave}
+  //   _getDefaultFunction={_getDefaultFunction}
+  //   groupUsers={props.groupUsers}
+  //   dropValue={props.dropValue}
+  // />
+  isVendorNave.isVendorCreate ? (
+    <Supplier
+      _getVendorNave={_getVendorNave}
+      groupUsers={props.groupUsers}
+      dropValue={props.dropValue}
+      currentUser={props.currentUser}
+    />
+  ) : true ? (
+    <div style={{ width: "100%" }}>
+      {/* Heading section */}
+      <Label className={styles.HeaderLable}>Budget Distribution</Label>
+      {/* Dropdown and btn section */}
+      <div className={styles.filterSection}>
+        {/* Left side section */}
+        <div className={styles.filters}>
+          {/* Country section */}
+          <div style={{ width: "26%" }}>
+            <Label>Country</Label>
+            <Dropdown
+              styles={DropdownStyle}
+              options={[...propDropValue.Country]}
+              selectedKey={_getFilterDropValues(
+                "Country",
+                {
+                  ...propDropValue,
+                },
+                filCountryDrop
+              )}
+              onChange={(e: any, text: IDrop) => {
+                _isCurYear = filPeriodDrop == _curYear ? true : false;
+                setFilCountryDrop(text.text as string);
                 setIsTrigger(!isTrigger);
               }}
-            >
-              <Icon iconName="Refresh" style={{ color: "#ffff" }} />
-            </div>
+            />
           </div>
 
-          {/* btn and people picker section */}
-          {!_isAdminView &&
-            filPeriodDrop === _curYear &&
-            (isUserPermissions.isInfraManager ||
-              isUserPermissions.isEnterpricesManager ||
-              isUserPermissions.isSpecialManager ||
-              isUserPermissions.isSuperAdmin) && (
-              <div style={{ display: "flex", alignItems: "end", width: "24%" }}>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    width: "100%",
-                    alignItems: "center",
+          {/* Area section */}
+          <div style={{ width: "26%" }}>
+            <Label>Area</Label>
+            <Dropdown
+              styles={DropdownStyle}
+              options={[...propDropValue.Area]}
+              selectedKey={_getFilterDropValues(
+                "Area",
+                { ...propDropValue },
+                filAreaDrop
+              )}
+              onChange={(e: any, text: IDrop) => {
+                _isCurYear = filPeriodDrop == _curYear ? true : false;
+                setFilAreaDrop(text.text as string);
+                setIsTrigger(!isTrigger);
+              }}
+            />
+          </div>
+
+          {/* Period section */}
+          <div style={{ width: "10%" }}>
+            <Label>Period</Label>
+            <Dropdown
+              styles={DropdownStyle}
+              options={[...propDropValue.Period]}
+              selectedKey={_getFilterDropValues(
+                "Period",
+                { ...propDropValue },
+                filPeriodDrop
+              )}
+              onChange={(e: any, text: IDrop) => {
+                _isCurYear = (text.text as string) == _curYear ? true : false;
+                setFilPeriodDrop(text.text as string);
+                setIsTrigger(!isTrigger);
+              }}
+            />
+          </div>
+
+          {/* Type section */}
+          <div style={{ width: "10%" }}>
+            <Label>Type</Label>
+            <Dropdown
+              styles={DropdownStyle}
+              options={[...propDropValue.Type]}
+              selectedKey={_getFilterDropValues(
+                "Type",
+                { ...propDropValue },
+                filTypeDrop
+              )}
+              onChange={(e: any, text: IDrop) => {
+                _isCurYear = filPeriodDrop == _curYear ? true : false;
+                setFilTypeDrop(text.text as string);
+                setIsTrigger(!isTrigger);
+              }}
+            />
+          </div>
+
+          {/* Over all refresh section */}
+          <div
+            className={styles.refIcon}
+            onClick={() => {
+              _isCurYear = true;
+              setFilPeriodDrop(
+                propDropValue.Period[propDropValue.Period.length - 1].text
+              );
+              setFilCountryDrop("All");
+              setFilTypeDrop("All");
+              setFilAreaDrop("All");
+              setIsTrigger(!isTrigger);
+            }}
+          >
+            <Icon iconName="Refresh" style={{ color: "#ffff" }} />
+          </div>
+        </div>
+
+        {/* btn and people picker section */}
+        {!_isAdminView &&
+          filPeriodDrop === _curYear &&
+          (isUserPermissions.isInfraManager ||
+            isUserPermissions.isEnterpricesManager ||
+            isUserPermissions.isSpecialManager ||
+            isUserPermissions.isSuperAdmin) && (
+            <div style={{ display: "flex", alignItems: "end", width: "24%" }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  width: "100%",
+                  alignItems: "center",
+                }}
+              >
+                {/* People picker section */}
+                <NormalPeoplePicker
+                  inputProps={{ placeholder: "Insert person" }}
+                  onResolveSuggestions={GetUserDetails}
+                  itemLimit={10}
+                  styles={peoplePickerStyle}
+                  selectedItems={userDatas}
+                  onChange={(selectedUser: any): void => {
+                    if (selectedUser.length) {
+                      let slctedUsers = [];
+                      selectedUser.forEach((value: IUserDetail) => {
+                        let authendication: boolean = [...slctedUsers].some(
+                          (val: IUserDetail) =>
+                            val.secondaryText === value.secondaryText
+                        );
+                        if (!authendication) {
+                          slctedUsers.push(value);
+                        }
+                      });
+                      setUserDatas([...slctedUsers]);
+                    } else {
+                      setUserDatas([]);
+                    }
+                  }}
+                />
+
+                {/* btn section */}
+                <button
+                  className={styles.btns}
+                  onClick={() => {
+                    userDatas.length &&
+                      addAdminData(JSON.stringify([...userDatas]));
                   }}
                 >
-                  {/* People picker section */}
-                  <NormalPeoplePicker
-                    inputProps={{ placeholder: "Insert person" }}
-                    onResolveSuggestions={GetUserDetails}
-                    itemLimit={10}
-                    styles={peoplePickerStyle}
-                    selectedItems={userDatas}
-                    onChange={(selectedUser: any): void => {
-                      if (selectedUser.length) {
-                        let slctedUsers = [];
-                        selectedUser.forEach((value: IUserDetail) => {
-                          let authendication: boolean = [...slctedUsers].some(
-                            (val: IUserDetail) =>
-                              val.secondaryText === value.secondaryText
-                          );
-                          if (!authendication) {
-                            slctedUsers.push(value);
-                          }
-                        });
-                        setUserDatas([...slctedUsers]);
-                      } else {
-                        setUserDatas([]);
-                      }
-                    }}
-                  />
-
-                  {/* btn section */}
-                  <button
-                    className={styles.btns}
-                    onClick={() => {
-                      userDatas.length &&
-                        addAdminData(JSON.stringify([...userDatas]));
-                    }}
-                  >
-                    Send
-                  </button>
-                </div>
+                  Send
+                </button>
               </div>
-            )}
+            </div>
+          )}
 
-          {/* vendor config btn section */}
-          {/* {!_isAdminView &&
+        {/* vendor config btn section */}
+        {/* {!_isAdminView &&
             filPeriodDrop === _curYear &&
             (isUserPermissions.isInfraManager ||
               isUserPermissions.isEnterpricesManager ||
@@ -1018,53 +1043,53 @@ const BudgetDistribution = (props: any): JSX.Element => {
               />
             )} */}
 
-          {/* vendor create btn section */}
-          {!_isAdminView &&
-            filPeriodDrop === _curYear &&
-            (isUserPermissions.isInfraManager ||
-              isUserPermissions.isEnterpricesManager ||
-              isUserPermissions.isSpecialManager ||
-              isUserPermissions.isInfraAdmin ||
-              isUserPermissions.isEnterpricesAdmin ||
-              isUserPermissions.isSpecialAdmin ||
-              isUserPermissions.isSuperAdmin) && (
-              <div style={{ marginLeft: 20 }}>
-                <DefaultButton
-                  text="Vendor Create"
-                  style={{
-                    cursor: group.length ? "pointer" : "not-allowed",
-                  }}
-                  styles={VendorBtnStyle}
-                  onClick={() => {
-                    group.length && _getVendorNave("vendorcreate", null);
-                  }}
-                />
-              </div>
-            )}
-        </div>
-
-        {/* Dashboard Detail list section */}
-        <DetailsList
-          items={[...items]}
-          groups={[...group]}
-          columns={[...detailColumn]}
-          styles={_DetailsListStyle}
-          setKey="set"
-          layoutMode={DetailsListLayoutMode.justified}
-          selectionMode={SelectionMode.none}
-        />
-        {items.length == 0 && (
-          <div className={styles.noRecords}>No data found !!!</div>
-        )}
+        {/* vendor create btn section */}
+        {!_isAdminView &&
+          filPeriodDrop === _curYear &&
+          (isUserPermissions.isInfraManager ||
+            isUserPermissions.isEnterpricesManager ||
+            isUserPermissions.isSpecialManager ||
+            isUserPermissions.isInfraAdmin ||
+            isUserPermissions.isEnterpricesAdmin ||
+            isUserPermissions.isSpecialAdmin ||
+            isUserPermissions.isSuperAdmin) && (
+            <div style={{ marginLeft: 20 }}>
+              <DefaultButton
+                text="Vendor Create"
+                style={{
+                  cursor: group.length ? "pointer" : "not-allowed",
+                }}
+                styles={VendorBtnStyle}
+                onClick={() => {
+                  group.length && _getVendorNave("vendorcreate", null);
+                }}
+              />
+            </div>
+          )}
       </div>
-    ) : (
-      <Vendor
-        props={props}
-        _masDistribution={[..._arrOfMaster]}
-        vendorDetails={vendorDetails}
-        setVendorDetails={setVendorDetails}
+
+      {/* Dashboard Detail list section */}
+      <DetailsList
+        items={[...items]}
+        groups={[...group]}
+        columns={[...detailColumn]}
+        styles={_DetailsListStyle}
+        setKey="set"
+        layoutMode={DetailsListLayoutMode.justified}
+        selectionMode={SelectionMode.none}
       />
-    );
+      {items.length == 0 && (
+        <div className={styles.noRecords}>No data found !!!</div>
+      )}
+    </div>
+  ) : (
+    <Vendor
+      props={props}
+      _masDistribution={[..._arrOfMaster]}
+      vendorDetails={vendorDetails}
+      setVendorDetails={setVendorDetails}
+    />
+  );
 };
 
 export default BudgetDistribution;

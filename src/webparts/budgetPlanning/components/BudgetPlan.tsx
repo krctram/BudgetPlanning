@@ -281,7 +281,10 @@ const BudgetPlan = (props: any): JSX.Element => {
           <div style={{ color: "#E39C5A" }}>
             {SPServices.format(Number(item.BudgetAllocated))}
           </div>
-        ) : isUserPermissions.isSuperAdmin &&
+        ) : (isUserPermissions.isSuperAdmin ||
+            isUserPermissions.isInfraManager ||
+            isUserPermissions.isEnterpricesManager ||
+            isUserPermissions.isSpecialManager) &&
           item.ApproveStatus !== "Approved" ? (
           <div>
             <TextField
@@ -1717,9 +1720,13 @@ const BudgetPlan = (props: any): JSX.Element => {
       data[columns.RemainingCost] = Number(curData.BudgetAllocated);
       data[columns.Comments] = curData.Comments;
       data[columns.Area] = curData.Area;
-      data[columns.ApproveStatus] = isUserPermissions.isSuperAdmin
-        ? Config.ApprovalStatus.Pending
-        : curData.ApproveStatus;
+      data[columns.ApproveStatus] =
+        isUserPermissions.isSuperAdmin ||
+        isUserPermissions.isEnterpricesManager ||
+        isUserPermissions.isInfraManager ||
+        isUserPermissions.isSpecialManager
+          ? Config.ApprovalStatus.Pending
+          : curData.ApproveStatus;
       _getEditData({ ...data }, "Updated");
     } else {
       data[columns.CategoryId] = curData.CateId;
@@ -1731,9 +1738,13 @@ const BudgetPlan = (props: any): JSX.Element => {
       //     ? curData.ApproveStatus
       //     : "Pending"
       //   : "Not Started";
-      data[columns.ApproveStatus] = isUserPermissions.isSuperAdmin
-        ? Config.ApprovalStatus.Pending
-        : curData.ApproveStatus;
+      data[columns.ApproveStatus] =
+        isUserPermissions.isSuperAdmin ||
+        isUserPermissions.isEnterpricesManager ||
+        isUserPermissions.isInfraManager ||
+        isUserPermissions.isSpecialManager
+          ? Config.ApprovalStatus.Pending
+          : curData.ApproveStatus;
       data[columns.CategoryType] = curData.Type;
       data[columns.BudgetProposed] = Number(curData.BudgetProposed);
       data[columns.BudgetAllocated] = Number(curData.BudgetAllocated);
@@ -1948,11 +1959,15 @@ const BudgetPlan = (props: any): JSX.Element => {
         (e: ICurBudgetItem) => e.ID !== null
       );
 
-      _curNewBudgetArray = !isUserPermissions.isSuperAdmin
-        ? _curIdRemoveArray.filter(
-            (e: ICurBudgetItem) => e.ApproveStatus === "Not Started"
-          )
-        : [];
+      _curNewBudgetArray =
+        !isUserPermissions.isSuperAdmin ||
+        !isUserPermissions.isEnterpricesManager ||
+        !isUserPermissions.isInfraManager ||
+        !isUserPermissions.isSpecialManager
+          ? _curIdRemoveArray.filter(
+              (e: ICurBudgetItem) => e.ApproveStatus === "Not Started"
+            )
+          : [];
 
       if (
         _curMasterArray[j].Status !== "Not Started" &&
@@ -1990,7 +2005,10 @@ const BudgetPlan = (props: any): JSX.Element => {
 
     if (
       (_curCateArray.length && _curSubArray.length && _isFunTriger) ||
-      isUserPermissions.isSuperAdmin
+      isUserPermissions.isSuperAdmin ||
+      isUserPermissions.isEnterpricesManager ||
+      isUserPermissions.isInfraManager ||
+      isUserPermissions.isSpecialManager
     ) {
       _curArray = [
         { ListName: Config.ListNames.CategoryList, _Array: [..._curCateArray] },

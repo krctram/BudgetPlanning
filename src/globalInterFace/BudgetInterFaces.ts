@@ -171,6 +171,7 @@ export interface ICurBudgetItem {
   isEdit: Boolean;
   isDummy: Boolean;
   CategoryType?: string;
+  VendorStatus?:string;
   isAdmin?: boolean;
   isManager?: boolean;
   isApproved?: boolean;
@@ -350,6 +351,7 @@ export interface IVendorProp {
 
 // Interface of butget track dis
 export interface IBudTrackDistribution {
+  Title:string;
   ID: Number;
   Cost: number | string;
   BudgetId: Number[];
@@ -508,6 +510,7 @@ export interface IVendorData {
   Budget?: IVenDrop[];
   curDetailsArr?: IVenDrop[];
   arrKeys?: number[];
+  VendorConfig:number;
 }
 
 // Vendor drop interface
@@ -540,15 +543,16 @@ export interface IBudList {
   ID: number;
   Used: number;
   RemainingCost: number;
-  VendorsId: any;
+  VendorsId?: any;
 }
 
 // Vendor list update interface
 export interface IVenList {
   ID: number;
-  CategoryId: number;
-  BudgetId: any;
+  CategoryId?: number;
+  BudgetId?: any;
   Status: string;
+  Comment?: string;
 }
 
 // Update json interface

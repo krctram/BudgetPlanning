@@ -44,7 +44,7 @@ import Loader from "./Loader";
 import alertify from "alertifyjs";
 import "alertifyjs/build/css/alertify.css";
 import * as moment from "moment";
-import { styled } from "office-ui-fabric-react";
+import { styled, values } from "office-ui-fabric-react";
 
 let propDropValue: IDropdowns;
 let isUserPermissions: IGroupUsers;
@@ -115,7 +115,9 @@ const BudgetTrackingList = (props: any): JSX.Element => {
   const [filCountryDrop, setFilCountryDrop] = useState<string>("All");
   const [filTypeDrop, setFilTypeDrop] = useState<string>("All");
   const [filAreaDrop, setFilAreaDrop] = useState<string>("All");
-  const [trackItems, setTrackItems] = useState<IOverAllTrackItem[]>([]);
+  const [trackItems, setTrackItems] = useState([]);
+  const [Master, setMaster] = useState([]);
+  const [Changedata, setChangeData] = useState([]);
   const [selItems, setSelItems] = useState<IBudTrackDistribution[]>([]);
   const [userDatas, setUserDatas] = useState([]);
   const [curEditItem, setCurEditItem] = useState<ITrackSelectedItem>({
@@ -123,6 +125,7 @@ const BudgetTrackingList = (props: any): JSX.Element => {
   });
   const [isModal, setIsModal] = useState<boolean>(false);
   const [isTrigger, setIsTrigger] = useState<boolean>(true);
+  console.log("track", trackItems);
 
   /* Style Section */
   const _DetailsListStyle: Partial<IDetailsListStyles> = {
@@ -243,286 +246,322 @@ const BudgetTrackingList = (props: any): JSX.Element => {
 
   /* function creation */
   const _getErrorFunction = (errMsg: any): void => {
+    console.log(errMsg);
+
     alertify.error("Error Message");
     setIsLoader(false);
   };
 
-  const _getDefaultFunction = (): void => {
-    setIsLoader(true);
-    _getCategoryDatas();
-  };
+  // const _getDefaultFunction = (): void => {
+  //   setIsLoader(true);
+  //   _getCategoryDatas();
+  // };
 
-  const _getCategoryDatas = (): void => {
-    SPServices.SPReadItems({
-      Listname: Config.ListNames.CategoryList,
-      Select:
-        "*, Year/ID, Year/Title, Country/ID, Country/Title, MasterCategory/ID",
-      Expand: "Year, Country, MasterCategory",
-      Filter: [
-        {
-          FilterKey: "isDeleted",
-          Operator: "ne",
-          FilterValue: "1",
-        },
-        {
-          FilterKey: "Year/Title",
-          Operator: "eq",
-          FilterValue: filPeriodDrop,
-        },
-      ],
-      Topcount: 5000,
-    })
-      .then((resCate: any) => {
-        let _curCategory: ICurCategoryItem[] = [];
+  // const _getCategoryDatas = (): void => {
+  //   SPServices.SPReadItems({
+  //     Listname: Config.ListNames.CategoryList,
+  //     Select:
+  //       "*, Year/ID, Year/Title, Country/ID, Country/Title, MasterCategory/ID",
+  //     Expand: "Year, Country, MasterCategory",
+  //     Filter: [
+  //       {
+  //         FilterKey: "isDeleted",
+  //         Operator: "ne",
+  //         FilterValue: "1",
+  //       },
+  //       {
+  //         FilterKey: "Year/Title",
+  //         Operator: "eq",
+  //         FilterValue: filPeriodDrop,
+  //       },
+  //     ],
+  //     Topcount: 5000,
+  //   })
+  //     .then((resCate: any) => {
+  //       let _curCategory = [];
 
-        if (resCate.length) {
-          for (let i: number = 0; resCate.length > i; i++) {
-            _curCategory.push({
-              ID: resCate[i].ID,
-              CategoryAcc: resCate[i].Title
-                ? {
-                    ID: resCate[i].ID,
-                    Text: resCate[i].Title,
-                  }
-                : undefined,
-              Type: resCate[i].CategoryType ? resCate[i].CategoryType : "",
-              Area: resCate[i].Area ? resCate[i].Area : "",
-              YearAcc: resCate[i].YearId
-                ? {
-                    ID: resCate[i].Year.ID,
-                    Text: resCate[i].Year.Title,
-                  }
-                : undefined,
-              CountryAcc: resCate[i].CountryId
-                ? {
-                    ID: resCate[i].Country.ID,
-                    Text: resCate[i].Country.Title,
-                  }
-                : undefined,
-              OverAllBudgetCost: resCate[i].OverAllBudgetCost
-                ? resCate[i].OverAllBudgetCost
-                : null,
-              TotalProposed: resCate[i].TotalProposed
-                ? resCate[i].TotalProposed
-                : null,
-              OverAllPOIssuedCost: resCate[i].OverAllPOIssuedCost
-                ? resCate[i].OverAllPOIssuedCost
-                : null,
-              OverAllRemainingCost: resCate[i].OverAllRemainingCost
-                ? resCate[i].OverAllRemainingCost
-                : null,
-            });
-            i + 1 == resCate.length && _getBudgetDatas([..._curCategory]);
-          }
-        } else {
-          setSelItems([]);
-          setTrackItems([]);
-          setIsLoader(false);
-        }
-      })
-      .catch((err: any) => {
-        _getErrorFunction(err);
-      });
-  };
+  //       if (resCate.length) {
+  //         for (let i: number = 0; resCate.length > i; i++) {
+  //           let TitleCol: string = `${
+  //             resCate[i].Title ? resCate[i].Title : ""
+  //           } - ${resCate[i].CountryId ? resCate[i].Country.Title : ""} ( ${
+  //             resCate[i].CategoryType
+  //           } ) ~ AED ${resCate[i].OverAllBudgetCost}`;
 
-  const _getBudgetDatas = (_arrCate: ICurCategoryItem[]): void => {
-    SPServices.SPReadItems({
-      Listname: Config.ListNames.BudgetList,
-      Select:
-        "*, Category/ID, Category/Title, Year/ID, Year/Title, Country/ID, Country/Title",
-      Expand: "Category, Year, Country",
-      Filter: [
-        {
-          FilterKey: "isDeleted",
-          FilterValue: "1",
-          Operator: "ne",
-        },
-        {
-          FilterKey: "Year/Title",
-          Operator: "eq",
-          FilterValue: filPeriodDrop,
-        },
-      ],
-      Topcount: 5000,
-      Orderbydecorasc: false,
-    })
-      .then((resBudget: any) => {
-        let _curItem: ICurBudgetItem[] = [];
-        if (resBudget.length) {
-          for (let i: number = 0; resBudget.length > i; i++) {
-            _curItem.push({
-              ID: resBudget[i].ID,
-              Category: resBudget[i].CategoryId
-                ? resBudget[i].Category.Title
-                : "",
-              Country: resBudget[i].CountryId ? resBudget[i].Country.Title : "",
-              Year: resBudget[i].YearId ? resBudget[i].Year.Title : "",
-              Type: resBudget[i].CategoryType ? resBudget[i].CategoryType : "",
-              Area: resBudget[i].Area ? resBudget[i].Area : "",
-              CateId: resBudget[i].CategoryId ? resBudget[i].Category.ID : null,
-              CounId: resBudget[i].CountryId ? resBudget[i].Country.ID : null,
-              YearId: resBudget[i].YearId ? resBudget[i].Year.ID : null,
-              BudgetAllocated: resBudget[i].BudgetAllocated
-                ? resBudget[i].BudgetAllocated
-                : null,
-              BudgetProposed: resBudget[i].BudgetProposed
-                ? resBudget[i].BudgetProposed
-                : null,
-              Used: resBudget[i].Used ? resBudget[i].Used : null,
-              ApproveStatus: resBudget[i].ApproveStatus
-                ? resBudget[i].ApproveStatus
-                : "",
-              Description: resBudget[i].Description
-                ? resBudget[i].Description
-                : "",
-              Comments: resBudget[i].Comments ? resBudget[i].Comments : "",
-              RemainingCost: resBudget[i].RemainingCost
-                ? resBudget[i].RemainingCost
-                : null,
-              isDeleted: resBudget[i].isDeleted,
-              isEdit: false,
-              isDummy: false,
-            });
-            i + 1 == resBudget.length &&
-              _getVendorDetail([..._arrCate], [..._curItem]);
-          }
-        } else {
-          setSelItems([]);
-          setTrackItems([]);
-          setIsLoader(false);
-        }
-      })
-      .catch((err: any) => {
-        _getErrorFunction(err);
-      });
-  };
+  //           _curCategory.push({
+  //             // ID: resCate[i].ID,
+  //             CategoryId: resCate[i].ID ? resCate[i].ID : null,
+  //             CategoryType: resCate[i].CategoryType
+  //               ? resCate[i].CategoryType
+  //               : "",
+  //             // Area: resCate[i].Area ? resCate[i].Area : "",
+  //             // YearAcc: resCate[i].YearId
+  //             //   ? {
+  //             //       ID: resCate[i].Year.ID,
+  //             //       Text: resCate[i].Year.Title,
+  //             //     }
+  //             //   : undefined,
+  //             CountryId: resCate[i].CountryId ? resCate[i].CountryId : null,
+  //             CatTitle: TitleCol,
+  //             OverAllBudgetCost: resCate[i].OverAllBudgetCost
+  //               ? resCate[i].OverAllBudgetCost
+  //               : null,
+  //             // TotalProposed: resCate[i].TotalProposed
+  //             //   ? resCate[i].TotalProposed
+  //             //   : null,
+  //             OverAllPOIssuedCost: resCate[i].OverAllPOIssuedCost
+  //               ? resCate[i].OverAllPOIssuedCost
+  //               : null,
+  //             OverAllRemainingCost: resCate[i].OverAllRemainingCost
+  //               ? resCate[i].OverAllRemainingCost
+  //               : null,
+  //           });
+  //           i + 1 == resCate.length && getvendorDetails();
+  //         }
+  //       } else {
+  //         setSelItems([]);
+  //         setTrackItems([]);
+  //         setIsLoader(false);
+  //       }
+  //     })
+  //     .catch((err: any) => {
+  //       _getErrorFunction(err);
+  //     });
+  // };
 
-  const _getVendorDetail = (
-    _arrCate: ICurCategoryItem[],
-    _arrBud: ICurBudgetItem[]
-  ): void => {
-    SPServices.SPReadItems({
-      Listname: Config.ListNames.VendorDetails,
-      Select:
-        "*, Category/ID, Category/Title, Budget/ID, Budget/Description, Country/ID, Country/Title, AttachmentFiles",
-      Expand: "Category, Budget, Country, AttachmentFiles",
-      Filter: [
-        {
-          FilterKey: "Year",
-          Operator: "eq",
-          FilterValue: filPeriodDrop,
-        },
-        {
-          FilterKey: "Status",
-          Operator: "eq",
-          FilterValue: "Approved",
-        },
-      ],
-      Topcount: 5000,
-      Orderbydecorasc: false,
-    })
-      .then((resDis: any) => {
-        let _arrDis: IBudTrackDistribution[] = [];
+  // const _getBudgetDatas = (_arrCate: ICurCategoryItem[]): void => {
+  //   SPServices.SPReadItems({
+  //     Listname: Config.ListNames.BudgetList,
+  //     Select:
+  //       "*, Category/ID, Category/Title, Year/ID, Year/Title, Country/ID, Country/Title",
+  //     Expand: "Category, Year, Country",
+  //     Filter: [
+  //       {
+  //         FilterKey: "isDeleted",
+  //         FilterValue: "1",
+  //         Operator: "ne",
+  //       },
+  //       {
+  //         FilterKey: "Year/Title",
+  //         Operator: "eq",
+  //         FilterValue: filPeriodDrop,
+  //       },
+  //     ],
+  //     Topcount: 5000,
+  //     Orderbydecorasc: false,
+  //   })
+  //     .then((resBudget: any) => {
+  //       let _curItem: ICurBudgetItem[] = [];
+  //       if (resBudget.length) {
+  //         for (let i: number = 0; resBudget.length > i; i++) {
+  //           _curItem.push({
+  //             ID: resBudget[i].ID,
+  //             Category: resBudget[i].CategoryId
+  //               ? resBudget[i].Category.Title
+  //               : "",
+  //             Country: resBudget[i].CountryId ? resBudget[i].Country.Title : "",
+  //             Year: resBudget[i].YearId ? resBudget[i].Year.Title : "",
+  //             Type: resBudget[i].CategoryType ? resBudget[i].CategoryType : "",
+  //             Area: resBudget[i].Area ? resBudget[i].Area : "",
+  //             CateId: resBudget[i].CategoryId ? resBudget[i].Category.ID : null,
+  //             CounId: resBudget[i].CountryId ? resBudget[i].Country.ID : null,
+  //             YearId: resBudget[i].YearId ? resBudget[i].Year.ID : null,
+  //             BudgetAllocated: resBudget[i].BudgetAllocated
+  //               ? resBudget[i].BudgetAllocated
+  //               : null,
+  //             BudgetProposed: resBudget[i].BudgetProposed
+  //               ? resBudget[i].BudgetProposed
+  //               : null,
+  //             Used: resBudget[i].Used ? resBudget[i].Used : null,
+  //             ApproveStatus: resBudget[i].ApproveStatus
+  //               ? resBudget[i].ApproveStatus
+  //               : "",
+  //             Description: resBudget[i].Description
+  //               ? resBudget[i].Description
+  //               : "",
+  //             Comments: resBudget[i].Comments ? resBudget[i].Comments : "",
+  //             RemainingCost: resBudget[i].RemainingCost
+  //               ? resBudget[i].RemainingCost
+  //               : null,
+  //             isDeleted: resBudget[i].isDeleted,
+  //             isEdit: false,
+  //             isDummy: false,
+  //           });
+  //           i + 1 == resBudget.length &&
+  //             _getVendorDetail([..._arrCate], [..._curItem]);
+  //         }
+  //       } else {
+  //         setSelItems([]);
+  //         setTrackItems([]);
+  //         setIsLoader(false);
+  //       }
+  //     })
+  //     .catch((err: any) => {
+  //       _getErrorFunction(err);
+  //     });
+  // };
 
-        if (resDis.length) {
-          resDis.forEach((e: any) => {
-            _arrDis.push({
-              ID: e.ID,
-              // BudgetId: e.BudgetId ? e.BudgetId : null,
-              BudgetId: e.BudgetId,
-              Cost: e.Price
-                ? SPServices.format(Number(e.Price))
-                : SPServices.format(0),
-              Vendor: e.VendorName ? e.VendorName : "",
-              Po: e.Po ? e.Po : "",
-              PoCurrency: e.PoCurrency ? e.PoCurrency : "",
-              InvoiceNo: e.InvoiceNo ? e.InvoiceNo : "",
-              Area: e.Area ? e.Area : "",
-              EntryDate: new Date(e.Created),
-              StartDate: e.StartingDate ? new Date(e.StartingDate) : null,
-              ToDate: e.ToDate ? new Date(e.ToDate) : null,
-              isClick: false,
-              isEdit: false,
-            });
-          });
+  // const _getVendorDetail = (
+  //   _arrCate: ICurCategoryItem[],
+  //   _arrBud: ICurBudgetItem[]
+  // ): void => {
+  //   SPServices.SPReadItems({
+  //     Listname: Config.ListNames.VendorDetails,
+  //     Select:
+  //       "*, Category/ID, Category/Title, Budget/ID, Budget/Description, Country/ID, Country/Title, AttachmentFiles",
+  //     Expand: "Category, Budget, Country, AttachmentFiles",
+  //     Filter: [
+  //       {
+  //         FilterKey: "Year",
+  //         Operator: "eq",
+  //         FilterValue: filPeriodDrop,
+  //       },
+  //       {
+  //         FilterKey: "Status",
+  //         Operator: "eq",
+  //         FilterValue: "Approved",
+  //       },
+  //       {
+  //         FilterKey: "IsDeleted",
+  //         Operator: "ne",
+  //         FilterValue: "1",
+  //       },
+  //     ],
+  //     Topcount: 5000,
+  //     Orderbydecorasc: false,
+  //   })
+  //     .then((resDis: any) => {
+  //       let _arrDis: IBudTrackDistribution[] = [];
 
-          resDis.length == _arrDis.length &&
-            _areaFilterFun([..._arrCate], [..._arrBud], [..._arrDis]);
-        } else {
-          setSelItems([]);
-          setTrackItems([]);
-          setIsLoader(false);
-        }
-      })
-      .catch((err: any) => {
-        _getErrorFunction(err);
-      });
-  };
+  //       if (resDis.length) {
+  //         resDis.forEach((e: any) => {
+  //           _arrDis.push({
+  //             Title: "",
+  //             ID: e.ID,
+  //             // BudgetId: e.BudgetId ? e.BudgetId : null,
+  //             BudgetId: e.BudgetId,
+  //             Cost: e.Price
+  //               ? SPServices.format(Number(e.Price))
+  //               : SPServices.format(0),
+  //             Vendor: e.VendorName ? e.VendorName : "",
+  //             Po: e.Po ? e.Po : "",
+  //             PoCurrency: e.PoCurrency ? e.PoCurrency : "",
+  //             InvoiceNo: e.InvoiceNo ? e.InvoiceNo : "",
+  //             Area: e.Area ? e.Area : "",
+  //             EntryDate: new Date(e.Created),
+  //             StartDate: e.StartingDate ? new Date(e.StartingDate) : null,
+  //             ToDate: e.ToDate ? new Date(e.ToDate) : null,
+  //             isClick: false,
+  //             isEdit: false,
+  //           });
+  //         });
 
-  const _areaFilterFun = (
-    _arrCate: ICurCategoryItem[],
-    _arrBud: ICurBudgetItem[],
-    _arrDis: any[]
-  ): void => {
-    if (_arrCate.length && _arrBud.length && _arrDis.length) {
-      _arrCategory = _filterArray(
-        isUserPermissions,
-        [..._arrCate],
-        Config.Navigation.BudgetTrackingList
-      );
+  //         resDis.length == _arrDis.length &&
+  //           _areaFilterFun([..._arrCate], [..._arrBud], [..._arrDis]);
+  //       } else {
+  //         setSelItems([]);
+  //         setTrackItems([]);
+  //         setIsLoader(false);
+  //       }
+  //     })
+  //     .catch((err: any) => {
+  //       _getErrorFunction(err);
+  //     });
+  // };
 
-      _arrBudget = _filterArray(
-        isUserPermissions,
-        [..._arrBud],
-        Config.Navigation.BudgetTrackingList
-      );
+  // const _areaFilterFun = (
+  //   _arrCate: ICurCategoryItem[],
+  //   _arrBud: ICurBudgetItem[],
+  //   _arrDis: any[]
+  // ): void => {
+  //   if (_arrCate.length && _arrBud.length && _arrDis.length) {
+  //     _arrCategory = _filterArray(
+  //       isUserPermissions,
+  //       [..._arrCate],
+  //       Config.Navigation.BudgetTrackingList
+  //     );
 
-      _arrDistribution = _filterArray(
-        isUserPermissions,
-        [..._arrDis],
-        Config.Navigation.BudgetTrackingList
-      );
+  //     _arrBudget = _filterArray(
+  //       isUserPermissions,
+  //       [..._arrBud],
+  //       Config.Navigation.BudgetTrackingList
+  //     );
 
-      if (_arrCategory.length && _arrBudget.length && _arrDistribution.length) {
-        _getFilterFunction();
-      } else {
-        setSelItems([]);
-        setTrackItems([]);
-        setIsLoader(false);
-      }
-    } else {
-      setSelItems([]);
-      setTrackItems([]);
-      setIsLoader(false);
-    }
-  };
+  //     _arrDistribution = _filterArray(
+  //       isUserPermissions,
+  //       [..._arrDis],
+  //       Config.Navigation.BudgetTrackingList
+  //     );
 
-  const _getFilterFunction = (): void => {
-    let tempArr: ICurCategoryItem[] = [..._arrCategory];
+  //     if (_arrCategory.length && _arrBudget.length && _arrDistribution.length) {
+  //       _getFilterFunction();
+  //     } else {
+  //       setSelItems([]);
+  //       setTrackItems([]);
+  //       setIsLoader(false);
+  //     }
+  //   } else {
+  //     setSelItems([]);
+  //     setTrackItems([]);
+  //     setIsLoader(false);
+  //   }
+  // };
+
+  // const _getFilterFunction = (): void => {
+  //   let tempArr: ICurCategoryItem[] = [..._arrCategory];
+
+  //   if (filCountryDrop != "All" && tempArr.length) {
+  //     tempArr = tempArr.filter((arr: ICurCategoryItem) => {
+  //       return arr.CountryAcc.Text == filCountryDrop;
+  //     });
+  //   }
+  //   if (filTypeDrop != "All" && tempArr.length) {
+  //     tempArr = tempArr.filter((arr: ICurCategoryItem) => {
+  //       return arr.Type == filTypeDrop;
+  //     });
+  //   }
+  //   if (filAreaDrop != "All" && tempArr.length) {
+  //     tempArr = tempArr.filter((arr: ICurCategoryItem) => {
+  //       return arr.Area == filAreaDrop;
+  //     });
+  //   }
+
+  //   if (tempArr.length) {
+  //     _arrMasterCategoryData([...tempArr]);
+  //   } else {
+  //     setSelItems([]);
+  //     setTrackItems([]);
+  //     setIsLoader(false);
+  //   }
+  // };
+
+  const FilterFunction = (): void => {
+    let tempArr = [...Changedata];
 
     if (filCountryDrop != "All" && tempArr.length) {
-      tempArr = tempArr.filter((arr: ICurCategoryItem) => {
-        return arr.CountryAcc.Text == filCountryDrop;
+      tempArr = tempArr.filter((arr) => {
+        return arr.Country == filCountryDrop;
       });
     }
     if (filTypeDrop != "All" && tempArr.length) {
-      tempArr = tempArr.filter((arr: ICurCategoryItem) => {
+      tempArr = tempArr.filter((arr) => {
         return arr.Type == filTypeDrop;
       });
     }
     if (filAreaDrop != "All" && tempArr.length) {
-      tempArr = tempArr.filter((arr: ICurCategoryItem) => {
+      tempArr = tempArr.filter((arr) => {
         return arr.Area == filAreaDrop;
       });
     }
 
-    if (tempArr.length) {
-      _arrMasterCategoryData([...tempArr]);
-    } else {
-      setSelItems([]);
-      setTrackItems([]);
-      setIsLoader(false);
-    }
+    // if (tempArr.length) {
+    //   _arrMasterCategoryData([...tempArr]);
+    // } else {
+    //   setSelItems([]);
+    //   setTrackItems([]);
+    //   setIsLoader(false);
+    // }
+    groupSplit([...tempArr]);
   };
 
   const _arrMasterCategoryData = (tempArr: ICurCategoryItem[]): void => {
@@ -807,24 +846,33 @@ const BudgetTrackingList = (props: any): JSX.Element => {
     }
   };
 
-  const handleUpdate = (): void => {
+  const handleUpdate = (Item): void => {
     let json: ITrackUpdateItem = {
-      StartingDate: curEditItem.StartDate
-        ? curEditItem.StartDate.toISOString()
-        : null,
-      ToDate: curEditItem.ToDate ? curEditItem.ToDate.toISOString() : null,
-      Po: curEditItem.Po,
-      PoCurrency: curEditItem.PoCurrency,
-      InvoiceNo: curEditItem.InvoiceNo,
+      StartingDate: Item.StartDate ? Item.StartDate.toISOString() : null,
+      ToDate: Item.ToDate ? Item.ToDate.toISOString() : null,
+      Po: Item.Po,
+      PoCurrency: Item.PoCurrency,
+      InvoiceNo: Item.InvoiceNo,
     };
 
     SPServices.SPUpdateItem({
       Listname: Config.ListNames.VendorDetails,
-      ID: Number(curEditItem.ID),
+      ID: Number(Item.ID),
       RequestJSON: json,
     })
       .then((data: any) => {
-        _getDefaultFunction();
+        // _getDefaultFunction();
+        // setIsTrigger(!isTrigger);
+        let MData = [...Changedata];
+        let Index = MData.findIndex((val) => val.ID == Item.ID);
+        MData[Index].isEdit = false;
+        let MasUpdate = [...Master];
+        let index = MasUpdate.findIndex((val) => val.ID == Item.ID);
+        MasUpdate[index] = MData[Index];
+        setChangeData([...MData]);
+        setMaster([...MasUpdate]);
+        groupSplit([...MData]);
+        // handleChange(Item.ID, "isEdit", false);
       })
       .catch((error: any) => {
         _getErrorFunction("Vendor details update issue");
@@ -832,14 +880,14 @@ const BudgetTrackingList = (props: any): JSX.Element => {
   };
 
   const handleSend = (): void => {
-    let _masterArray: IOverAllTrackItem[] = [...trackItems];
+    // let _masterArray: IOverAllTrackItem[] = [...trackItems];
 
-    for (let i: number = 0; _masterArray.length > i; i++) {
-      _masterArray[i].isMasterClick = false;
-      [..._masterArray[i].VendorDetails].map(
-        (e: IBudTrackDistribution) => ((e.isClick = false), (e.isEdit = false))
-      );
-    }
+    // for (let i: number = 0; _masterArray.length > i; i++) {
+    //   _masterArray[i].isMasterClick = false;
+    //   [..._masterArray[i].VendorDetails].map(
+    //     (e: IBudTrackDistribution) => ((e.isClick = false), (e.isEdit = false))
+    //   );
+    // }
 
     let json: any = {
       AdminData: JSON.stringify([...userDatas]),
@@ -854,16 +902,308 @@ const BudgetTrackingList = (props: any): JSX.Element => {
       .then((res: any) => {
         setSelItems([]);
         setUserDatas([]);
-        setTrackItems([..._masterArray]);
+        // setTrackItems([..]);
+        handleCheck(selItems[0].Title, false, "clear");
       })
       .catch((err: any) => {
         _getErrorFunction(err);
       });
   };
 
+  const getvendorDetails = () => {
+    SPServices.SPReadItems({
+      Listname: Config.ListNames.VendorDetails,
+      Select:
+        "*, Category/ID, Category/Title,Category/OverAllBudgetCost,Category/OverAllRemainingCost,Category/OverAllPOIssuedCost, Budget/ID, Budget/Description, Country/ID, Country/Title, AttachmentFiles",
+      Expand: "Category, Budget, Country, AttachmentFiles",
+      Filter: [
+        {
+          FilterKey: "Year",
+          Operator: "eq",
+          FilterValue: filPeriodDrop,
+        },
+        {
+          FilterKey: "Status",
+          Operator: "eq",
+          FilterValue: "Approved",
+        },
+        {
+          FilterKey: "IsDeleted",
+          Operator: "ne",
+          FilterValue: "1",
+        },
+      ],
+      Topcount: 5000,
+      Orderbydecorasc: false,
+    })
+      .then((resDis: any) => {
+        console.log("resDis", resDis);
+
+        let _arrDis: any[] = [];
+        if (resDis.length) {
+          for (let i = 0; i < resDis.length; i++) {
+            // let FilData = [...VendorData].filter((value) => {
+            //   return (
+            //     value.CategoryId == resDis[i].CategoryId &&
+            //     value.CountryId == resDis[i].CountryId &&
+            //     value.CategoryType == resDis[i].CategoryType
+            //   );
+            // });
+            let TitleCol: string = `${
+              resDis[i].CategoryId ? resDis[i].Category.Title : ""
+            } - ${resDis[i].CountryId ? resDis[i].Country.Title : ""} ( ${
+              resDis[i].CategoryType
+            } ) ~ AED ${
+              resDis[i].CategoryId ? resDis[i].Category.OverAllBudgetCost : ""
+            }`;
+            // let TitleCol: string = FilData.length ? FilData[0].CatTitle : "";
+            // let CatMasTitle = VendorData.filter((val) => {
+            //   return val.CatTitle == TitleCol;
+            // });
+            _arrDis.push({
+              Title: TitleCol,
+              ID: resDis[i].ID,
+              // BudgetId: resDis[i].BudgetId ? resDis[i].BudgetId : null,
+              Country: resDis[i].CountryId ? resDis[i].Country.Title : "",
+              BudgetId: resDis[i].BudgetId,
+              Item: resDis[i].BudgetId ? resDis[i].Budget.Description : "",
+              Type: resDis[i].CategoryType ? resDis[i].CategoryType : "",
+              Cost: resDis[i].Price
+                ? SPServices.format(Number(resDis[i].Price))
+                : SPServices.format(0),
+              Vendor: resDis[i].VendorName ? resDis[i].VendorName : "",
+              Po: resDis[i].Po ? resDis[i].Po : "",
+              PoCurrency: resDis[i].PoCurrency ? resDis[i].PoCurrency : "",
+              InvoiceNo: resDis[i].InvoiceNo ? resDis[i].InvoiceNo : "",
+              Area: resDis[i].Area ? resDis[i].Area : "",
+              EntryDate: new Date(resDis[i].Created),
+              StartDate: resDis[i].StartingDate
+                ? new Date(resDis[i].StartingDate)
+                : null,
+              ToDate: resDis[i].ToDate ? new Date(resDis[i].ToDate) : null,
+              OverAllBudgetCost: resDis[i].CategoryId
+                ? resDis[i].Category.OverAllBudgetCost
+                : null,
+              OverAllPOIssuedCost: resDis[i].CategoryId
+                ? resDis[i].Category.OverAllPOIssuedCost
+                : null,
+              OverAllRemainingCost: resDis[i].CategoryId
+                ? resDis[i].Category.OverAllRemainingCost
+                : null,
+              isClick: false,
+              isEdit: false,
+            });
+            // });
+            // console.log(TrackTitles);
+          }
+          // console.log(_arrDis);
+
+          // setIsLoader(false);
+          // groupSplit([..._arrDis]);
+          _areaFilterFun([..._arrDis]);
+          // resDis.length == _arrDis.length &&
+          //   _areaFilterFun([..._arrCate], [..._arrBud], [..._arrDis]);
+        } else {
+          setSelItems([]);
+          setTrackItems([]);
+          setIsLoader(false);
+        }
+      })
+      .catch((err: any) => {
+        _getErrorFunction(err);
+      });
+  };
+  const _areaFilterFun = (_arrDis: any[]): void => {
+    if (_arrDis.length) {
+      // _arrCategory = _filterArray(
+      //   isUserPermissions,
+      //   [..._arrCate],
+      //   Config.Navigation.BudgetTrackingList
+      // );
+
+      // _arrBudget = _filterArray(
+      //   isUserPermissions,
+      //   [..._arrBud],
+      //   Config.Navigation.BudgetTrackingList
+      // );
+
+      _arrDistribution = _filterArray(
+        isUserPermissions,
+        [..._arrDis],
+        Config.Navigation.BudgetTrackingList
+      );
+
+      if (_arrDistribution.length) {
+        setMaster([..._arrDis]);
+        _getFilterFunction(_arrDistribution);
+      } else {
+        setSelItems([]);
+        setTrackItems([]);
+        setIsLoader(false);
+      }
+    } else {
+      setSelItems([]);
+      setTrackItems([]);
+      setIsLoader(false);
+    }
+  };
+  const _getFilterFunction = (_arrCategory): void => {
+    let tempArr = [..._arrCategory];
+
+    if (filCountryDrop != "All" && tempArr.length) {
+      tempArr = tempArr.filter((arr) => {
+        return arr.Country == filCountryDrop;
+      });
+    }
+    if (filTypeDrop != "All" && tempArr.length) {
+      tempArr = tempArr.filter((arr) => {
+        return arr.Type == filTypeDrop;
+      });
+    }
+    if (filAreaDrop != "All" && tempArr.length) {
+      tempArr = tempArr.filter((arr) => {
+        return arr.Area == filAreaDrop;
+      });
+    }
+
+    if (tempArr.length) {
+      setChangeData([...tempArr]);
+      groupSplit([...tempArr]);
+      setIsLoader(false);
+    } else {
+      setSelItems([]);
+      setTrackItems([]);
+      setIsLoader(false);
+    }
+  };
+  const groupSplit = (Data) => {
+    let TrackTitles = [];
+
+    let MData = [];
+    Data.forEach((value) => {
+      if (TrackTitles.every((val) => val != value.Title)) {
+        TrackTitles.push(value.Title);
+      }
+    });
+    TrackTitles.forEach((gName) => {
+      let MGrpData = Data.filter((val) => {
+        return gName == val.Title;
+      });
+      console.log([...MGrpData].every((val) => val.isClick == true));
+
+      MData.push({
+        Title: gName,
+        isMasClick: [...MGrpData].every((val) => val.isClick == true),
+        VendorDetails: [...MGrpData],
+      });
+    });
+    // console.log(MData);
+
+    setTrackItems([...MData]);
+  };
+
+  const isEditItem = (Id: Number, flag: string) => {
+    let MData = [...Changedata];
+    let Change = [];
+    console.log("mas", Master);
+
+    if (flag == "edit") {
+      MData.forEach((val) => {
+        if (val.ID == Id) {
+          val.isEdit = true;
+        } else {
+          val.StartDate = null;
+          val.ToDate = null;
+          val.Po = "";
+          val.PoCurrency = "";
+          val.InvoiceNo = "";
+          val.isEdit = false;
+        }
+        Change.push(val);
+      });
+      // for (let i = 0; i < Master.length; i++) {
+      //   if (Id == MData[i].ID) {
+      //     MData[i].isEdit = true;
+      //     MData[i].StartDate = Master[i];
+      //     MData[i].ToDate = null;
+      //     MData[i].Po = "";
+      //     MData[i].PoCurrency = "";
+      //     MData[i].InvoiceNo = "";
+      //     MData[i].isEdit = false;
+      //   } else {
+      //     MData[i].isEdit = false;
+      //   }
+      // }
+    } else {
+      // MData.forEach((val) => {
+      //   val.isEdit = false;
+      //   Change.push(val);
+      // });
+      Change = [...Changedata];
+      let Index = MData.findIndex((val) => val.ID == Id);
+      Change[Index] = { ...curEditItem };
+      console.log(Change);
+    }
+    // let Index = MData.findIndex((val) => val.ID == Id);
+    // MData[Index][key] = value;
+    // setMaster([...MData]);
+    groupSplit([...Change]);
+  };
+  const handleChange = (Id: Number, key: string, value: any) => {
+    let MData = [...Changedata];
+    let Index = MData.findIndex((val) => val.ID == Id);
+    let item = MData[Index];
+    // setMaster([...MData]);
+    // console.log("mas", Master);
+    if (key == "isEdit" && !value) {
+      let index = Master.findIndex((val) => val.ID == Id);
+      MData[Index] = Master[index];
+    } else if (key == "isClick") {
+      let selectVal = [...selItems];
+      if (value) {
+        let checkData = MData.filter((val) => {
+          return val.ID == Id;
+        });
+        setSelItems([...selectVal, ...checkData]);
+      } else {
+        let UncheckData = [...selectVal].filter((val) => {
+          return val.ID != Id;
+        });
+        setSelItems([...UncheckData]);
+      }
+      MData[Index] = { ...item, [key]: value };
+    } else {
+      MData[Index] = { ...item, [key]: value };
+    }
+    setChangeData([...MData]);
+    groupSplit([...MData]);
+  };
+
+  const handleCheck = (title, value, type) => {
+    let ChHandleData = [...Changedata];
+    let selectItems = [];
+    if (type == "insert") {
+      ChHandleData.forEach((val) => {
+        if (val.Title == title && !val.isedit) {
+          val.isClick = value;
+          if (value) {
+            selectItems.push(val);
+          }
+        }
+      });
+    } else {
+      ChHandleData.forEach((val) => {
+        val.isClick = value;
+      });
+    }
+    setChangeData([...ChHandleData]);
+    setSelItems([...selectItems]);
+    groupSplit([...ChHandleData]);
+  };
   /* Life cycle of onload */
   useEffect(() => {
-    _getDefaultFunction();
+    getvendorDetails();
+    // _getDefaultFunction();
   }, [isTrigger]);
 
   /* NormalPeoplePicker Function */
@@ -918,6 +1258,7 @@ const BudgetTrackingList = (props: any): JSX.Element => {
               onChange={(e: any, text: IDrop) => {
                 setFilCountryDrop(text.text as string);
                 setIsTrigger(!isTrigger);
+                // FilterFunction();
               }}
             />
           </div>
@@ -938,6 +1279,7 @@ const BudgetTrackingList = (props: any): JSX.Element => {
               onChange={(e: any, text: IDrop) => {
                 setFilAreaDrop(text.text as string);
                 setIsTrigger(!isTrigger);
+                // FilterFunction();
               }}
             />
           </div>
@@ -958,6 +1300,7 @@ const BudgetTrackingList = (props: any): JSX.Element => {
               onChange={(e: any, text: IDrop) => {
                 setFilTypeDrop(text.text as string);
                 setIsTrigger(!isTrigger);
+                // FilterFunction();
               }}
             />
           </div>
@@ -1018,16 +1361,12 @@ const BudgetTrackingList = (props: any): JSX.Element => {
           </div>
         )}
       </div>
-
-      {/* Accordion section */}
       {trackItems.length ? (
-        trackItems.map((item: IOverAllTrackItem, index: number) => {
+        trackItems.map((item, index: number) => {
           return (
             <Accordion
               className={styles.accordion}
-              title={`${item.CategoryAcc} - ${item.CountryAcc} ( ${
-                item.Type
-              } ) ~ AED ${SPServices.format(item.OverAllBudgetCost)}`}
+              title={item.Title}
               defaultCollapsed={true}
               collapsedIcon={"ChevronRight"}
               expandedIcon={"ChevronDown"}
@@ -1057,9 +1396,20 @@ const BudgetTrackingList = (props: any): JSX.Element => {
                               justifyContent: "center",
                             },
                           }}
-                          checked={item.isMasterClick ? _isSelectAll : false}
+                          checked={item.isMasClick}
                           onChange={(e: any, isChecked: boolean) => {
-                            handleChecked(isChecked, index, null, "all");
+                            // handleChecked(isChecked, index, null, "all");
+                            let Checkdata = [...Changedata].filter((val) => {
+                              return val.Title != item.Title;
+                            });
+                            if (
+                              item.VendorDetails.every((ch) => {
+                                return ch.isEdit == false;
+                              }) &&
+                              Checkdata.every((val) => val.isClick == false)
+                            ) {
+                              handleCheck(item.Title, isChecked, "insert");
+                            }
                           }}
                         />
                       </th>
@@ -1082,6 +1432,340 @@ const BudgetTrackingList = (props: any): JSX.Element => {
                   {/* table body section */}
                   {item.VendorDetails.map(
                     (data: IBudTrackDistribution, i: number) => {
+                      return (
+                        <tr>
+                          {_isCurrentYear && !_isAdminView && (
+                            <td style={{ width: 20 }}>
+                              <Checkbox
+                                styles={{
+                                  root: {
+                                    justifyContent: "center",
+                                  },
+                                }}
+                                checked={data.isClick}
+                                onChange={(e: any, isChecked: boolean) => {
+                                  // handleChecked(isChecked, index, i, "");
+                                  let Checkdata = [...Changedata].filter(
+                                    (val) => {
+                                      return val.Title != item.Title;
+                                    }
+                                  );
+                                  if (
+                                    !data.isEdit &&
+                                    Checkdata.every(
+                                      (val) => val.isClick == false
+                                    )
+                                  ) {
+                                    handleChange(data.ID, "isClick", isChecked);
+                                  }
+                                }}
+                              />
+                            </td>
+                          )}
+                          <td style={{ width: 100 }}>
+                            {moment(data.EntryDate).format("DD/MM/YYYY")}
+                          </td>
+                          <td style={{ width: 100 }}>
+                            <div title={data.Item} className={styles.dripleDot}>
+                              {data.Item.length > 15
+                                ? `${data.Item.slice(0, 15)}...`
+                                : data.Item}
+                            </div>
+                          </td>
+                          <td style={{ width: 100 }}>{data.Cost}</td>
+                          <td style={{ width: 100 }}>{data.Type}</td>
+                          <td
+                            style={{ width: 120, cursor: "pointer" }}
+                            title={data.Vendor}
+                          >
+                            {data.Vendor}
+                          </td>
+                          <td style={{ width: 130 }}>
+                            {data.isEdit ? (
+                              <DatePicker
+                                styles={dateStyles}
+                                style={{ marginTop: 6 }}
+                                placeholder="DD/MM/YYYY"
+                                value={data.StartDate ? data.StartDate : null}
+                                formatDate={(date) =>
+                                  moment(date).format("DD/MM/YYYY")
+                                }
+                                onSelectDate={(e: Date) => {
+                                  // curEditItem.StartDate = e;
+                                  // setCurEditItem({ ...curEditItem });
+                                  handleChange(data.ID, "StartDate", e);
+                                }}
+                              />
+                            ) : data.StartDate ? (
+                              moment(data.StartDate).format("DD/MM/YYYY")
+                            ) : (
+                              "-"
+                            )}
+                          </td>
+                          <td style={{ width: 120 }}>
+                            {data.isEdit ? (
+                              <DatePicker
+                                styles={dateStyles}
+                                style={{ marginTop: 6 }}
+                                placeholder="DD/MM/YYYY"
+                                value={data.ToDate ? data.ToDate : null}
+                                formatDate={(date) =>
+                                  moment(date).format("DD/MM/YYYY")
+                                }
+                                onSelectDate={(e: Date) => {
+                                  // curEditItem.ToDate = e;
+                                  // setCurEditItem({ ...curEditItem });
+                                  handleChange(data.ID, "ToDate", e);
+                                }}
+                              />
+                            ) : data.ToDate ? (
+                              moment(data.ToDate).format("DD/MM/YYYY")
+                            ) : (
+                              "-"
+                            )}
+                          </td>
+                          <td style={{ width: 120 }}>
+                            {data.isEdit ? (
+                              <TextField
+                                styles={textFieldStyle}
+                                value={data.Po}
+                                placeholder="Enter here"
+                                onChange={(e: any, text) => {
+                                  // curEditItem.Po = e.target.value.trimStart();
+                                  // setCurEditItem({ ...curEditItem });
+                                  handleChange(data.ID, "Po", text);
+                                }}
+                              />
+                            ) : data.Po ? (
+                              data.Po
+                            ) : (
+                              "-"
+                            )}
+                          </td>
+                          <td style={{ width: 100 }}>
+                            {data.isEdit ? (
+                              <TextField
+                                styles={textFieldStyle}
+                                value={data.PoCurrency}
+                                placeholder="Enter here"
+                                onChange={(e: any, text) => {
+                                  // curEditItem.PoCurrency =
+                                  //   e.target.value.trimStart();
+                                  // setCurEditItem({ ...curEditItem });
+                                  handleChange(data.ID, "PoCurrency", text);
+                                }}
+                              />
+                            ) : data.PoCurrency ? (
+                              data.PoCurrency
+                            ) : (
+                              "-"
+                            )}
+                          </td>
+                          <td style={{ width: 100 }}>
+                            {data.isEdit ? (
+                              <TextField
+                                styles={textFieldStyle}
+                                value={data.InvoiceNo}
+                                placeholder="Enter here"
+                                onChange={(e: any, text) => {
+                                  // curEditItem.InvoiceNo =
+                                  //   e.target.value.trimStart();
+                                  // setCurEditItem({ ...curEditItem });
+                                  handleChange(data.ID, "InvoiceNo", text);
+                                }}
+                              />
+                            ) : data.InvoiceNo ? (
+                              data.InvoiceNo
+                            ) : (
+                              "-"
+                            )}
+                          </td>
+                          {_isCurrentYear && !_isAdminView && (
+                            <td style={{ width: 100 }}>
+                              {!data.isEdit ? (
+                                <Icon
+                                  iconName="Edit"
+                                  style={{
+                                    color: "blue",
+                                    fontSize: "16px",
+                                    cursor: "pointer",
+                                  }}
+                                  onClick={() => {
+                                    // _getEditItem(index, i, "edit");
+                                    // isEditItem(data.ID, "edit");
+                                    // console.log(data);
+
+                                    // setCurEditItem(data);
+                                    if (!data.isClick) {
+                                      handleChange(data.ID, "isEdit", true);
+                                    }
+                                  }}
+                                />
+                              ) : (
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    justifyContent: "start",
+                                    gap: "6%",
+                                  }}
+                                >
+                                  <Icon
+                                    iconName="CheckMark"
+                                    style={{
+                                      color: "green",
+                                      fontSize: "20px",
+                                      cursor: "pointer",
+                                    }}
+                                    onClick={() => {
+                                      handleUpdate(data);
+                                    }}
+                                  />
+                                  <Icon
+                                    iconName="Cancel"
+                                    style={{
+                                      color: "red",
+                                      fontSize: "20px",
+                                      cursor: "pointer",
+                                    }}
+                                    onClick={() => {
+                                      handleChange(data.ID, "isEdit", false);
+                                      // isEditItem(data.ID, "cancel");
+                                    }}
+                                  />
+                                </div>
+                              )}
+                            </td>
+                          )}
+                        </tr>
+                      );
+                    }
+                  )}
+                </table>
+
+                {/* Over All Amount Details */}
+                <div className={styles.indicatorSection}>
+                  <div className={styles.indicatorWidth}>
+                    <div className={styles.budgetIndicators}>
+                      <div className={styles.leftDiv}>Budget</div>
+                      <div
+                        style={{
+                          background:
+                            "linear-gradient(to right, #20cbde, #fff)",
+                        }}
+                        className={styles.righttDiv}
+                      >
+                        {SPServices.format(
+                          item.VendorDetails[0].OverAllBudgetCost
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className={styles.indicatorSection}>
+                  <div className={styles.indicatorWidth}>
+                    <div className={styles.budgetIndicators}>
+                      <div className={styles.leftDiv}>PO Issued</div>
+                      <div
+                        style={{
+                          background:
+                            "linear-gradient(to right, #ded420, #fff)",
+                        }}
+                        className={styles.righttDiv}
+                      >
+                        {SPServices.format(
+                          item.VendorDetails[0].OverAllPOIssuedCost
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className={styles.indicatorSection}>
+                  <div className={styles.indicatorWidth}>
+                    <div className={styles.budgetIndicators}>
+                      <div className={styles.leftDiv}>Remaining Budget</div>
+                      <div
+                        style={{
+                          background:
+                            item.VendorDetails[0].OverAllRemainingCost >= 0
+                              ? "linear-gradient(to right, #31de20, #fff)"
+                              : "linear-gradient(to right, #e25e59, #f1f1f1)",
+                        }}
+                        className={styles.righttDiv}
+                      >
+                        {SPServices.format(
+                          item.VendorDetails[0].OverAllRemainingCost
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Accordion>
+          );
+        })
+      ) : (
+        <div className={styles.noRecords}>No data found !!!</div>
+      )}
+      {/* Accordion section */}
+      {/* <div>
+        {trackItems.length ? (
+          trackItems.map((item: IOverAllTrackItem, index: number) => {
+            return (
+              <Accordion
+                className={styles.accordion}
+                title={`${item.CategoryAcc} - ${item.CountryAcc} ( ${
+                  item.Type
+                } ) ~ AED ${SPServices.format(item.OverAllBudgetCost)}`}
+                defaultCollapsed={true}
+                collapsedIcon={"ChevronRight"}
+                expandedIcon={"ChevronDown"}
+                key={index}
+              >
+                <div
+                  style={{
+                    width: "100%",
+                  }}
+                >
+                  <table
+                    style={{
+                      width: "100%",
+                      marginBottom: "20px",
+                      border: 0,
+                    }}
+                    className={styles.tableStyle}
+                  >
+                    <tr>
+                      {_isCurrentYear && !_isAdminView && (
+                        <th style={{ width: 20 }}>
+                          <Checkbox
+                            styles={{
+                              root: {
+                                justifyContent: "center",
+                              },
+                            }}
+                            checked={item.isMasterClick ? _isSelectAll : false}
+                            onChange={(e: any, isChecked: boolean) => {
+                              handleChecked(isChecked, index, null, "all");
+                            }}
+                          />
+                        </th>
+                      )}
+                      <th style={{ width: 100 }}>Entry Date</th>
+                      <th style={{ width: 100 }}>Item</th>
+                      <th style={{ width: 100 }}>Cost</th>
+                      <th style={{ width: 100 }}>Type</th>
+                      <th style={{ width: 120 }}>Vendor</th>
+                      <th style={{ width: 130 }}>Start Date</th>
+                      <th style={{ width: 120 }}>To Date</th>
+                      <th style={{ width: 120 }}>PO#</th>
+                      <th style={{ width: 100 }}>PO Currency</th>
+                      <th style={{ width: 100 }}>Invoice No</th>
+                      {_isCurrentYear && !_isAdminView && (
+                        <th style={{ width: 100 }}>Action</th>
+                      )}
+                    </tr>
+
+                    {[].map((data: IBudTrackDistribution, i: number) => {
                       return (
                         <tr>
                           {_isCurrentYear && !_isAdminView && (
@@ -1230,6 +1914,7 @@ const BudgetTrackingList = (props: any): JSX.Element => {
                                   }}
                                   onClick={() => {
                                     _getEditItem(index, i, "edit");
+                                    // handleChange(data.ID, "isEdit", true);
                                   }}
                                 />
                               ) : (
@@ -1248,7 +1933,7 @@ const BudgetTrackingList = (props: any): JSX.Element => {
                                       cursor: "pointer",
                                     }}
                                     onClick={() => {
-                                      handleUpdate();
+                                      // handleUpdate();
                                     }}
                                   />
                                   <Icon
@@ -1268,69 +1953,67 @@ const BudgetTrackingList = (props: any): JSX.Element => {
                           )}
                         </tr>
                       );
-                    }
-                  )}
-                </table>
+                    })}
+                  </table>
 
-                {/* Over All Amount Details */}
-                <div className={styles.indicatorSection}>
-                  <div className={styles.indicatorWidth}>
-                    <div className={styles.budgetIndicators}>
-                      <div className={styles.leftDiv}>Budget</div>
-                      <div
-                        style={{
-                          background:
-                            "linear-gradient(to right, #20cbde, #fff)",
-                        }}
-                        className={styles.righttDiv}
-                      >
-                        {SPServices.format(item.OverAllBudgetCost)}
+                  <div className={styles.indicatorSection}>
+                    <div className={styles.indicatorWidth}>
+                      <div className={styles.budgetIndicators}>
+                        <div className={styles.leftDiv}>Budget</div>
+                        <div
+                          style={{
+                            background:
+                              "linear-gradient(to right, #20cbde, #fff)",
+                          }}
+                          className={styles.righttDiv}
+                        >
+                          {SPServices.format(item.OverAllBudgetCost)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className={styles.indicatorSection}>
+                    <div className={styles.indicatorWidth}>
+                      <div className={styles.budgetIndicators}>
+                        <div className={styles.leftDiv}>PO Issued</div>
+                        <div
+                          style={{
+                            background:
+                              "linear-gradient(to right, #ded420, #fff)",
+                          }}
+                          className={styles.righttDiv}
+                        >
+                          {SPServices.format(item.OverAllPOIssuedCost)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className={styles.indicatorSection}>
+                    <div className={styles.indicatorWidth}>
+                      <div className={styles.budgetIndicators}>
+                        <div className={styles.leftDiv}>Remaining Budget</div>
+                        <div
+                          style={{
+                            background:
+                              item.OverAllRemainingCost >= 0
+                                ? "linear-gradient(to right, #31de20, #fff)"
+                                : "linear-gradient(to right, #e25e59, #f1f1f1)",
+                          }}
+                          className={styles.righttDiv}
+                        >
+                          {SPServices.format(item.OverAllRemainingCost)}
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div className={styles.indicatorSection}>
-                  <div className={styles.indicatorWidth}>
-                    <div className={styles.budgetIndicators}>
-                      <div className={styles.leftDiv}>PO Issued</div>
-                      <div
-                        style={{
-                          background:
-                            "linear-gradient(to right, #ded420, #fff)",
-                        }}
-                        className={styles.righttDiv}
-                      >
-                        {SPServices.format(item.OverAllPOIssuedCost)}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className={styles.indicatorSection}>
-                  <div className={styles.indicatorWidth}>
-                    <div className={styles.budgetIndicators}>
-                      <div className={styles.leftDiv}>Remaining Budget</div>
-                      <div
-                        style={{
-                          background:
-                            item.OverAllRemainingCost >= 0
-                              ? "linear-gradient(to right, #31de20, #fff)"
-                              : "linear-gradient(to right, #e25e59, #f1f1f1)",
-                        }}
-                        className={styles.righttDiv}
-                      >
-                        {SPServices.format(item.OverAllRemainingCost)}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Accordion>
-          );
-        })
-      ) : (
-        <div className={styles.noRecords}>No data found !!!</div>
-      )}
-
+              </Accordion>
+            );
+          })
+        ) : (
+          <div className={styles.noRecords}>No data found !!!</div>
+        )}
+      </div> */}
       {/* Modal box section */}
       {selItems.length ? (
         <Modal isOpen={isModal} isBlocking={false} styles={modalStyle}>
@@ -1342,7 +2025,7 @@ const BudgetTrackingList = (props: any): JSX.Element => {
             }}
           >
             <Label style={{ fontSize: 18, color: "#202945" }}>
-              {selItems[0].Category}
+              {selItems[0].Title}
             </Label>
             <Icon
               iconName="Cancel"
@@ -1352,8 +2035,9 @@ const BudgetTrackingList = (props: any): JSX.Element => {
                 cursor: "pointer",
               }}
               onClick={() => {
-                _getEditItem(null, null, "cancel");
+                // _getEditItem(null, null, "cancel");
                 setIsModal(false);
+                handleCheck(selItems[0].Title, false, "clear");
               }}
             />
           </div>

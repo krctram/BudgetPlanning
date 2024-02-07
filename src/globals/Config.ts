@@ -172,6 +172,7 @@ export namespace Config {
     RemainingCost: null,
     OverAllBudgetCost: null,
     OverAllRemainingCost: null,
+    VendorStatus:"",
     isDeleted: false,
     isEdit: false,
     isDummy: false,

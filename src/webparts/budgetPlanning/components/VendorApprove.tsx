@@ -296,6 +296,11 @@ const VendorApprove = (props: any): JSX.Element => {
           Operator: "eq",
           FilterValue: "Approved",
         },
+        {
+          FilterKey: "IsDeleted",
+          Operator: "ne",
+          FilterValue: "1",
+        },
       ],
     })
       .then((res: any) => {
@@ -336,7 +341,7 @@ const VendorApprove = (props: any): JSX.Element => {
                 Category: res[i].CategoryId ? res[i].Category.Title : "-",
                 subCategory: res[i].BudgetId.length
                   ? res[i].Budget.filter((e: any) => e.ID === props._selID)[0]
-                    .Description
+                      .Description
                   : "",
                 CountryId: res[i].CountryId ? res[i].CountryId : 0,
                 Price: res[i].Price ? res[i].Price : 0,
@@ -346,6 +351,7 @@ const VendorApprove = (props: any): JSX.Element => {
                   : 0,
                 Attachments: [..._Attach],
                 index: 0,
+                VendorConfig: res[i].VendorConfig ? res[i].VendorConfig : null,
               });
             }
 
