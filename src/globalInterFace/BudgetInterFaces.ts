@@ -511,6 +511,8 @@ export interface IVendorData {
   curDetailsArr?: IVenDrop[];
   arrKeys?: number[];
   VendorConfig:number;
+  BudgetId?:any;
+  CategoryId?:number;
 }
 
 // Vendor drop interface

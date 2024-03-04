@@ -56,7 +56,6 @@ interface IPagination {
 const CountryConfig = (props: any): JSX.Element => {
   /* Variable creation */
   propDropValue = { ...props.dropValue };
-  // console.log("props", props);
 
   _isAdminView = props.groupUsers.isSuperAdminView;
   isUserPermissions = { ...props.groupUsers };
@@ -270,9 +269,6 @@ const CountryConfig = (props: any): JSX.Element => {
     currentPage: 1,
   });
 
-  // console.log("data", data);
-  // console.log("inputData", inputData);
-
   /* Style Section */
 
   const _DetailsListStyle: Partial<IDetailsListStyles> = {
@@ -442,8 +438,9 @@ const CountryConfig = (props: any): JSX.Element => {
   };
 
   /* function creation */
-  const _getErrorFunction = (errMsg: string): void => {
-    alertify.error(errMsg);
+  const _getErrorFunction = (errMsg: string, name: string): void => {
+    console.log(name, errMsg);
+    alertify.error(name);
     setIsLoader(false);
   };
 
@@ -467,7 +464,6 @@ const CountryConfig = (props: any): JSX.Element => {
     })
       .then((result: any) => {
         if (result.length) {
-          // console.log("result", result);
           setAllData(result);
         } else {
           setAllItems([]);
@@ -476,7 +472,9 @@ const CountryConfig = (props: any): JSX.Element => {
           setIsLoader(false);
         }
       })
-      .catch((error) => _getErrorFunction("get country configration"));
+      .catch((error) => {
+        _getErrorFunction(error, "get country configration");
+      });
   };
 
   const setAllData = (datas: any) => {
@@ -553,7 +551,6 @@ const CountryConfig = (props: any): JSX.Element => {
   };
 
   const getPeoplePickerItems = (datas: any[], index: number, type: string) => {
-    // console.log("items", items);
     let isAdd = type === "add";
     let users: ICountryAdminData[] = [];
     if (datas.length) {
@@ -583,7 +580,6 @@ const CountryConfig = (props: any): JSX.Element => {
 
     let datas = !isUpdate ? [...allDatas] : [];
     let updateValidate: IUpdateValidation = { ...Config.UpdateValidation };
-    console.log("allDatas", allDatas);
     allDatas.forEach((value: any, index: number) => {
       let isEmtyValidate: boolean = false;
       let isExistValidate: boolean = false;
@@ -700,7 +696,6 @@ const CountryConfig = (props: any): JSX.Element => {
           },
         });
       });
-      console.log("json", json);
       addData(json);
     }
   };
@@ -723,7 +718,7 @@ const CountryConfig = (props: any): JSX.Element => {
         // setIsLoader(false);
         getDefaultFunction();
       })
-      .catch((err) => _getErrorFunction("Country config delete"));
+      .catch((err) => _getErrorFunction(err, "Country config delete"));
   };
 
   const addData = (json: any) => {
@@ -732,7 +727,6 @@ const CountryConfig = (props: any): JSX.Element => {
       responseData: json,
     })
       .then((result) => {
-        console.log("res", result);
         alertify.success("Data added successfully");
         getDefaultFunction();
         setData([
@@ -747,7 +741,9 @@ const CountryConfig = (props: any): JSX.Element => {
         setIsModalOpen(false);
         setIsLoader(false);
       })
-      .catch((err) => console.log("err", err));
+      .catch((err) => {
+        _getErrorFunction(err, "Add countryconfig");
+      });
   };
 
   const handleEdit = (index: number, type: string) => {
@@ -811,7 +807,7 @@ const CountryConfig = (props: any): JSX.Element => {
           setIsUpdateValidation({ ...Config.UpdateValidation });
           getDefaultFunction();
         })
-        .catch((err) => _getErrorFunction("Country config update"));
+        .catch((err) => _getErrorFunction(err, "Country config update"));
     }
   };
 

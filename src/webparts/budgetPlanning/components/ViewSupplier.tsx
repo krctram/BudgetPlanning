@@ -14,6 +14,8 @@ import SPServices from "../../../CommonServices/SPServices";
 import * as moment from "moment";
 import { ISupplierViewData } from "../../../globalInterFace/BudgetInterFaces";
 import { _filterArray } from "../../../CommonServices/filterCommonArray";
+import alertify from "alertifyjs";
+import "alertifyjs/build/css/alertify.css";
 
 const ViewSupplier = (props: any): JSX.Element => {
   const columns = [
@@ -148,7 +150,6 @@ const ViewSupplier = (props: any): JSX.Element => {
       maxWidth: 300,
       onRender: (item: any, index: number) => {
         if (item.Attachments.length) {
-          console.log("hel");
           return (
             <a href={item.Attachments[0].ServerRelativeUrl}>
               <Icon
@@ -225,7 +226,11 @@ const ViewSupplier = (props: any): JSX.Element => {
       },
     },
   };
-
+  const _getErrorFunction = (errMsg: any, name: string): void => {
+    console.log(name, errMsg);
+    alertify.error(name);
+    setIsLoader(false);
+  };
   const getDefaultFunction = () => {
     setIsLoader(true);
     getAllData();
@@ -248,11 +253,10 @@ const ViewSupplier = (props: any): JSX.Element => {
       .then((res: any) => {
         setAllDatas(res);
       })
-      .catch((err: any) => console.log("err", err));
+      .catch((err: any) => _getErrorFunction(err, "Get vendor config"));
   };
 
   const setAllDatas = (datas: any) => {
-    console.log("datas", datas);
     let data = [...datas];
     let itms: ISupplierViewData[] = [];
 
@@ -277,14 +281,12 @@ const ViewSupplier = (props: any): JSX.Element => {
       });
     });
 
-    // console.log("grp users", props.groupUsers);
     let newItems = _filterArray(
       props.groupUsers,
       itms,
       Config.Navigation.BudgetDistribution
     );
 
-    // console.log("newItems", newItems);
     setItems(newItems);
     setIsLoader(false);
   };

@@ -38,8 +38,10 @@ const CommonScreen = (props: any): JSX.Element => {
   const [dropValue, setDropValue] = useState<IDropdowns>(Config.dropdownValues);
 
   /* function creation */
-  const _getErrorFunction = (errMsg: any): void => {
-    alertify.error("Error message");
+  const _getErrorFunction = (errMsg: any, name: string): void => {
+    console.log(name, errMsg);
+    alertify.error(name);
+    setIsLoader(false);
   };
 
   const _getDropDownValues = (): void => {
@@ -70,6 +72,13 @@ const CommonScreen = (props: any): JSX.Element => {
           Listname: Config.ListNames.CountryList,
           Orderby: Config.CountryListColumns.Title,
           Orderbydecorasc: true,
+          Filter: [
+            {
+              FilterKey: "IsDeleted",
+              Operator: "ne",
+              FilterValue: "1",
+            },
+          ],
         })
           .then((resType: any[]) => {
             let _countryDrop: IDrop[] = [{ key: 0, text: "All" }];
@@ -173,19 +182,22 @@ const CommonScreen = (props: any): JSX.Element => {
                     _getNaveFun("");
                   })
                   .catch((err: any) => {
-                    _getErrorFunction(err);
+                    _getErrorFunction(
+                      err,
+                      "Create dropdown masterCategorylist"
+                    );
                   });
               })
               .catch((err: any) => {
-                _getErrorFunction(err);
+                _getErrorFunction(err, "Create dropdown categorylist");
               });
           })
           .catch((err: any) => {
-            _getErrorFunction(err);
+            _getErrorFunction(err, "Create dropdown countrylist");
           });
       })
       .catch((err: any) => {
-        _getErrorFunction(err);
+        _getErrorFunction(err, "Create dropdown yearlist");
       });
   };
 

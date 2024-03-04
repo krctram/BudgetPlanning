@@ -768,8 +768,9 @@ const Vendor = (props: any): JSX.Element => {
   };
 
   /* function creation */
-  const getErrorFunction = (error: any) => {
-    alertify.error(error);
+  const getErrorFunction = (errMsg: any, name: string) => {
+    console.log(name, errMsg);
+    alertify.error(name);
     setIsLoader(false);
   };
 
@@ -802,7 +803,7 @@ const Vendor = (props: any): JSX.Element => {
         _getBudgetDatas();
       })
       .catch((err: any) => {
-        getErrorFunction("Master category datas get issue");
+        getErrorFunction(err, "Master category datas get issue");
       });
   };
 
@@ -827,7 +828,7 @@ const Vendor = (props: any): JSX.Element => {
         _getVendorsArr();
       })
       .catch((err: any) => {
-        getErrorFunction("Sub category datas get issue");
+        getErrorFunction(err, "Sub category datas get issue");
       });
   };
 
@@ -907,7 +908,7 @@ const Vendor = (props: any): JSX.Element => {
         }
       })
       .catch((err: any) => {
-        getErrorFunction("Get previous year vendor");
+        getErrorFunction(err, "Get previous year vendor");
       });
   };
 
@@ -989,7 +990,7 @@ const Vendor = (props: any): JSX.Element => {
           setIsLoader(false);
         }
       })
-      .catch((error: any) => getErrorFunction("Get vendor data"));
+      .catch((error: any) => getErrorFunction(error, "Get vendor data"));
   };
 
   const newVendorAdd = (item: IVendorItems, index: number): void => {
@@ -1137,7 +1138,7 @@ const Vendor = (props: any): JSX.Element => {
         createMasterFolder(resAddItem.data.Id);
       })
       .catch((error: any) => {
-        getErrorFunction("Add categorty list");
+        getErrorFunction(error, "Add categorty list");
       });
   };
 
@@ -1157,13 +1158,15 @@ const Vendor = (props: any): JSX.Element => {
               .items.getById(_folder["ListItemAllFields"]["ID"])
               .update({ DistributionId: itemId })
               .then((item1: any) => {})
-              .catch((error: any) => getErrorFunction("Id update error"));
+              .catch((error: any) =>
+                getErrorFunction(error, "Id update error")
+              );
           });
 
         createFirstSubFolder(folder, itemId);
       })
       .catch((err) => {
-        getErrorFunction("Create folder");
+        getErrorFunction(err, "Create folder");
       });
   };
 
@@ -1185,13 +1188,13 @@ const Vendor = (props: any): JSX.Element => {
               await Attachment.push(result.data.ServerRelativeUrl);
             })
             .catch((error) =>
-              getErrorFunction("Create file for first sub folder")
+              getErrorFunction(error, "Create file for first sub folder")
             );
         }
 
         createSecondSubFolder(folder, itemId, Attachment);
       })
-      .catch((error) => getErrorFunction("Create first sub folder"));
+      .catch((error) => getErrorFunction(error, "Create first sub folder"));
   };
 
   const createSecondSubFolder = async (
@@ -1216,13 +1219,13 @@ const Vendor = (props: any): JSX.Element => {
               await Procurement.push(result.data.ServerRelativeUrl);
             })
             .catch((error) =>
-              getErrorFunction("create file for second sub folder")
+              getErrorFunction(error, "create file for second sub folder")
             );
         }
 
         updateJson(Attachment, Procurement, itemId, "Add");
       })
-      .catch((error) => getErrorFunction("create second sub folder"));
+      .catch((error) => getErrorFunction(error, "create second sub folder"));
   };
 
   const updateJson = (
@@ -1248,7 +1251,7 @@ const Vendor = (props: any): JSX.Element => {
       .then((data) => {
         _UpdateMasterCatercory();
       })
-      .catch((error) => getErrorFunction("Update attachment"));
+      .catch((error) => getErrorFunction(error, "Update attachment"));
   };
 
   const _UpdateMasterCatercory = (): void => {
@@ -1266,7 +1269,7 @@ const Vendor = (props: any): JSX.Element => {
         _UpdateSubCatercory();
       })
       .catch((err: any) => {
-        getErrorFunction("Master Category Amount Update Issue");
+        getErrorFunction(err, "Master Category Amount Update Issue");
       });
   };
 
@@ -1285,7 +1288,7 @@ const Vendor = (props: any): JSX.Element => {
         getDefaultFunction();
       })
       .catch((err: any) => {
-        getErrorFunction("Sub Category Amount Update Issue");
+        getErrorFunction(err, "Sub Category Amount Update Issue");
       });
   };
 
@@ -1345,7 +1348,7 @@ const Vendor = (props: any): JSX.Element => {
         getMasterFolder(vendorData.ID);
       })
       .catch((error) => {
-        getErrorFunction("Update distribution error");
+        getErrorFunction(error, "Update distribution error");
       });
   };
 
@@ -1358,7 +1361,7 @@ const Vendor = (props: any): JSX.Element => {
       .then((folder) => {
         getFisrtSubFolder(folder, itemId);
       })
-      .catch((error) => getErrorFunction("Get master folder"));
+      .catch((error) => getErrorFunction(error, "Get master folder"));
   };
 
   const getFisrtSubFolder = async (folder: any, itemId: number) => {
@@ -1375,7 +1378,7 @@ const Vendor = (props: any): JSX.Element => {
         .then((data) => {
           Attachment.unshift(data.data.ServerRelativeUrl);
         })
-        .catch((err) => getErrorFunction("Update first sub folder files"));
+        .catch((err) => getErrorFunction(err, "Update first sub folder files"));
     }
     getSecondSubFolder(folder, itemId, Attachment);
   };
@@ -1400,7 +1403,9 @@ const Vendor = (props: any): JSX.Element => {
         .then((data) => {
           Procurement.unshift(data.data.ServerRelativeUrl);
         })
-        .catch((err) => getErrorFunction("Update second sub folder files"));
+        .catch((err) =>
+          getErrorFunction(err, "Update second sub folder files")
+        );
     }
     updateJson(Attachment, Procurement, itemId, "Update");
   };
@@ -1562,7 +1567,7 @@ const Vendor = (props: any): JSX.Element => {
           setIsConfirmModal(false);
           getVendorData();
         })
-        .catch((error) => getErrorFunction("Update status"));
+        .catch((error) => getErrorFunction(error, "Update status"));
     }
   };
 
@@ -1587,7 +1592,7 @@ const Vendor = (props: any): JSX.Element => {
         _UpdateMasterCatercory();
       })
       .catch((error) => {
-        getErrorFunction("Update distribution error");
+        getErrorFunction(error, "Update distribution error");
       });
   };
 

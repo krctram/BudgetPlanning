@@ -22,6 +22,7 @@ import {
   ITextFieldStyles,
   IDatePickerStyles,
   IModalStyles,
+  TooltipHost,
 } from "@fluentui/react";
 import { Config } from "../../../globals/Config";
 import {
@@ -82,6 +83,13 @@ const BudgetTrackingList = (props: any): JSX.Element => {
       fieldName: "Item",
       minWidth: 200,
       maxWidth: 250,
+      onRender: (item) => {
+        return (
+          <TooltipHost content={item.Item}>
+            <label>{item.Item}</label>
+          </TooltipHost>
+        );
+      },
     },
     {
       key: "column3",
@@ -125,7 +133,6 @@ const BudgetTrackingList = (props: any): JSX.Element => {
   });
   const [isModal, setIsModal] = useState<boolean>(false);
   const [isTrigger, setIsTrigger] = useState<boolean>(true);
-  console.log("track", trackItems);
 
   /* Style Section */
   const _DetailsListStyle: Partial<IDetailsListStyles> = {
@@ -245,10 +252,9 @@ const BudgetTrackingList = (props: any): JSX.Element => {
   };
 
   /* function creation */
-  const _getErrorFunction = (errMsg: any): void => {
-    console.log(errMsg);
-
-    alertify.error("Error Message");
+  const _getErrorFunction = (errMsg: any, name: string): void => {
+    console.log(name, errMsg);
+    alertify.error(name);
     setIsLoader(false);
   };
 
@@ -535,316 +541,316 @@ const BudgetTrackingList = (props: any): JSX.Element => {
   //   }
   // };
 
-  const FilterFunction = (): void => {
-    let tempArr = [...Changedata];
+  // const FilterFunction = (): void => {
+  //   let tempArr = [...Changedata];
 
-    if (filCountryDrop != "All" && tempArr.length) {
-      tempArr = tempArr.filter((arr) => {
-        return arr.Country == filCountryDrop;
-      });
-    }
-    if (filTypeDrop != "All" && tempArr.length) {
-      tempArr = tempArr.filter((arr) => {
-        return arr.Type == filTypeDrop;
-      });
-    }
-    if (filAreaDrop != "All" && tempArr.length) {
-      tempArr = tempArr.filter((arr) => {
-        return arr.Area == filAreaDrop;
-      });
-    }
+  //   if (filCountryDrop != "All" && tempArr.length) {
+  //     tempArr = tempArr.filter((arr) => {
+  //       return arr.Country == filCountryDrop;
+  //     });
+  //   }
+  //   if (filTypeDrop != "All" && tempArr.length) {
+  //     tempArr = tempArr.filter((arr) => {
+  //       return arr.Type == filTypeDrop;
+  //     });
+  //   }
+  //   if (filAreaDrop != "All" && tempArr.length) {
+  //     tempArr = tempArr.filter((arr) => {
+  //       return arr.Area == filAreaDrop;
+  //     });
+  //   }
 
-    // if (tempArr.length) {
-    //   _arrMasterCategoryData([...tempArr]);
-    // } else {
-    //   setSelItems([]);
-    //   setTrackItems([]);
-    //   setIsLoader(false);
-    // }
-    groupSplit([...tempArr]);
-  };
+  //   // if (tempArr.length) {
+  //   //   _arrMasterCategoryData([...tempArr]);
+  //   // } else {
+  //   //   setSelItems([]);
+  //   //   setTrackItems([]);
+  //   //   setIsLoader(false);
+  //   // }
+  //   groupSplit([...tempArr]);
+  // };
 
-  const _arrMasterCategoryData = (tempArr: ICurCategoryItem[]): void => {
-    let _arrMasterCategory: IOverAllTrackItem[] = [];
+  // const _arrMasterCategoryData = (tempArr: ICurCategoryItem[]): void => {
+  //   let _arrMasterCategory: IOverAllTrackItem[] = [];
 
-    for (let i: number = 0; tempArr.length > i; i++) {
-      _arrMasterCategory.push({
-        CategoryAcc: tempArr[i].CategoryAcc.Text,
-        YearAcc: tempArr[i].YearAcc.Text,
-        CountryAcc: tempArr[i].CountryAcc.Text,
-        Type: tempArr[i].Type,
-        Area: tempArr[i].Area,
-        ID: tempArr[i].ID,
-        yearID: tempArr[i].YearAcc.ID,
-        countryID: tempArr[i].CountryAcc.ID,
-        OverAllBudgetCost: tempArr[i].OverAllBudgetCost,
-        OverAllPOIssuedCost: tempArr[i].OverAllPOIssuedCost,
-        OverAllRemainingCost: tempArr[i].OverAllRemainingCost,
-        TotalProposed: tempArr[i].TotalProposed,
-        isMasterClick: false,
-        VendorDetails: [],
-      });
-      _arrMasterCategory.length == tempArr.length &&
-        _getPrepareArray([..._arrMasterCategory]);
-    }
-  };
+  //   for (let i: number = 0; tempArr.length > i; i++) {
+  //     _arrMasterCategory.push({
+  //       CategoryAcc: tempArr[i].CategoryAcc.Text,
+  //       YearAcc: tempArr[i].YearAcc.Text,
+  //       CountryAcc: tempArr[i].CountryAcc.Text,
+  //       Type: tempArr[i].Type,
+  //       Area: tempArr[i].Area,
+  //       ID: tempArr[i].ID,
+  //       yearID: tempArr[i].YearAcc.ID,
+  //       countryID: tempArr[i].CountryAcc.ID,
+  //       OverAllBudgetCost: tempArr[i].OverAllBudgetCost,
+  //       OverAllPOIssuedCost: tempArr[i].OverAllPOIssuedCost,
+  //       OverAllRemainingCost: tempArr[i].OverAllRemainingCost,
+  //       TotalProposed: tempArr[i].TotalProposed,
+  //       isMasterClick: false,
+  //       VendorDetails: [],
+  //     });
+  //     _arrMasterCategory.length == tempArr.length &&
+  //       _getPrepareArray([..._arrMasterCategory]);
+  //   }
+  // };
 
-  const _getPrepareArray = (_cateArray: IOverAllTrackItem[]): void => {
-    let _arrTrack: IOverAllTrackItem[] = [];
+  // const _getPrepareArray = (_cateArray: IOverAllTrackItem[]): void => {
+  //   let _arrTrack: IOverAllTrackItem[] = [];
 
-    for (let i: number = 0; _cateArray.length > i; i++) {
-      let _isTrack: Boolean = false;
-      for (let j: number = 0; _arrBudget.length > j; j++) {
-        if (
-          _cateArray[i].ID === _arrBudget[j].CateId &&
-          _cateArray[i].CategoryAcc === _arrBudget[j].Category &&
-          _cateArray[i].CountryAcc === _arrBudget[j].Country &&
-          _cateArray[i].YearAcc === _arrBudget[j].Year &&
-          _cateArray[i].Type === _arrBudget[j].Type &&
-          _cateArray[i].Area === _arrBudget[j].Area &&
-          !_isTrack
-        ) {
-          for (let k: number = 0; _arrDistribution.length > k; k++) {
-            // if (_arrBudget[j].ID === _arrDistribution[k].BudgetId) {
-            if (_arrDistribution[k].BudgetId.includes(_arrBudget[j].ID)) {
-              _isTrack = true;
-              _arrDistribution[k].Item = _arrBudget[j].Description;
-              _arrDistribution[k].Type = _arrBudget[j].Type;
-              _arrDistribution[k].Category = _cateArray[i].CategoryAcc;
-              _arrDistribution[k].CateId = _cateArray[i].ID;
-              _arrDistribution[k].OverAllBudgetCost =
-                _cateArray[i].OverAllBudgetCost;
-              _arrDistribution[k].OverAllPOIssuedCost =
-                _cateArray[i].OverAllPOIssuedCost;
-              _arrDistribution[k].OverAllRemainingCost =
-                _cateArray[i].OverAllRemainingCost;
+  //   for (let i: number = 0; _cateArray.length > i; i++) {
+  //     let _isTrack: Boolean = false;
+  //     for (let j: number = 0; _arrBudget.length > j; j++) {
+  //       if (
+  //         _cateArray[i].ID === _arrBudget[j].CateId &&
+  //         _cateArray[i].CategoryAcc === _arrBudget[j].Category &&
+  //         _cateArray[i].CountryAcc === _arrBudget[j].Country &&
+  //         _cateArray[i].YearAcc === _arrBudget[j].Year &&
+  //         _cateArray[i].Type === _arrBudget[j].Type &&
+  //         _cateArray[i].Area === _arrBudget[j].Area &&
+  //         !_isTrack
+  //       ) {
+  //         for (let k: number = 0; _arrDistribution.length > k; k++) {
+  //           // if (_arrBudget[j].ID === _arrDistribution[k].BudgetId) {
+  //           if (_arrDistribution[k].BudgetId.includes(_arrBudget[j].ID)) {
+  //             _isTrack = true;
+  //             _arrDistribution[k].Item = _arrBudget[j].Description;
+  //             _arrDistribution[k].Type = _arrBudget[j].Type;
+  //             _arrDistribution[k].Category = _cateArray[i].CategoryAcc;
+  //             _arrDistribution[k].CateId = _cateArray[i].ID;
+  //             _arrDistribution[k].OverAllBudgetCost =
+  //               _cateArray[i].OverAllBudgetCost;
+  //             _arrDistribution[k].OverAllPOIssuedCost =
+  //               _cateArray[i].OverAllPOIssuedCost;
+  //             _arrDistribution[k].OverAllRemainingCost =
+  //               _cateArray[i].OverAllRemainingCost;
 
-              _cateArray[i].VendorDetails.push({ ..._arrDistribution[k] });
-            }
+  //             _cateArray[i].VendorDetails.push({ ..._arrDistribution[k] });
+  //           }
 
-            if (_isTrack && k + 1 === _arrDistribution.length) {
-              _isTrack = false;
-              _arrTrack.push({ ..._cateArray[i] });
-            }
-          }
-        }
-      }
-    }
+  //           if (_isTrack && k + 1 === _arrDistribution.length) {
+  //             _isTrack = false;
+  //             _arrTrack.push({ ..._cateArray[i] });
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
 
-    if (_arrTrack.length) {
-      _getUniqueValues([..._arrTrack]);
-    } else {
-      setSelItems([]);
-      setTrackItems([]);
-      setIsLoader(false);
-    }
-  };
+  //   if (_arrTrack.length) {
+  //     _getUniqueValues([..._arrTrack]);
+  //   } else {
+  //     setSelItems([]);
+  //     setTrackItems([]);
+  //     setIsLoader(false);
+  //   }
+  // };
 
-  const _getUniqueValues = (_arrTrack: IOverAllTrackItem[]) => {
-    let _arrBudgetTrackList: IOverAllTrackItem[] = [];
-    let matches: any[] = [];
-    let idTrack: number[] = [];
-    let _uniqueTrackList: string[] = [];
-    let distinctMap = {};
-    let _objBudget: IOverAllTrackItem;
+  // const _getUniqueValues = (_arrTrack: IOverAllTrackItem[]) => {
+  //   let _arrBudgetTrackList: IOverAllTrackItem[] = [];
+  //   let matches: any[] = [];
+  //   let idTrack: number[] = [];
+  //   let _uniqueTrackList: string[] = [];
+  //   let distinctMap = {};
+  //   let _objBudget: IOverAllTrackItem;
 
-    _arrTrack.reduce((item: number[], e1: IOverAllTrackItem) => {
-      matches = item.filter((e2: number) => {
-        return e1.ID === e2;
-      });
-      if (matches.length == 0) {
-        idTrack.push(e1.ID);
-      }
-      return idTrack;
-    }, []);
+  //   _arrTrack.reduce((item: number[], e1: IOverAllTrackItem) => {
+  //     matches = item.filter((e2: number) => {
+  //       return e1.ID === e2;
+  //     });
+  //     if (matches.length == 0) {
+  //       idTrack.push(e1.ID);
+  //     }
+  //     return idTrack;
+  //   }, []);
 
-    for (let i: number = 0; i < idTrack.length; i++) {
-      let value: number = idTrack[i];
-      distinctMap[value] = null;
-    }
-    _uniqueTrackList = Object.keys(distinctMap);
+  //   for (let i: number = 0; i < idTrack.length; i++) {
+  //     let value: number = idTrack[i];
+  //     distinctMap[value] = null;
+  //   }
+  //   _uniqueTrackList = Object.keys(distinctMap);
 
-    if (_uniqueTrackList.length) {
-      for (let i: number = 0; _uniqueTrackList.length > i; i++) {
-        _objBudget = [..._arrTrack].filter((e: IOverAllTrackItem) => {
-          return e.ID === Number(_uniqueTrackList[i]);
-        })[0];
-        _arrBudgetTrackList.push({ ..._objBudget });
+  //   if (_uniqueTrackList.length) {
+  //     for (let i: number = 0; _uniqueTrackList.length > i; i++) {
+  //       _objBudget = [..._arrTrack].filter((e: IOverAllTrackItem) => {
+  //         return e.ID === Number(_uniqueTrackList[i]);
+  //       })[0];
+  //       _arrBudgetTrackList.push({ ..._objBudget });
 
-        if (_uniqueTrackList.length === i + 1) {
-          setSelItems([]);
-          setTrackItems([..._arrBudgetTrackList]);
-          setIsLoader(false);
-        }
-      }
-    } else {
-      setSelItems([]);
-      setTrackItems([]);
-      setIsLoader(false);
-    }
-  };
+  //       if (_uniqueTrackList.length === i + 1) {
+  //         setSelItems([]);
+  //         setTrackItems([..._arrBudgetTrackList]);
+  //         setIsLoader(false);
+  //       }
+  //     }
+  //   } else {
+  //     setSelItems([]);
+  //     setTrackItems([]);
+  //     setIsLoader(false);
+  //   }
+  // };
 
-  const _getEditItem = (
-    masIndex: number,
-    subIndex: number,
-    type: string
-  ): void => {
-    let _masterArray: IOverAllTrackItem[] = [...trackItems];
+  // const _getEditItem = (
+  //   masIndex: number,
+  //   subIndex: number,
+  //   type: string
+  // ): void => {
+  //   let _masterArray: IOverAllTrackItem[] = [...trackItems];
 
-    for (let i: number = 0; _masterArray.length > i; i++) {
-      _masterArray[i].isMasterClick = false;
-      [..._masterArray[i].VendorDetails].map(
-        (e: IBudTrackDistribution) => ((e.isClick = false), (e.isEdit = false))
-      );
-    }
+  //   for (let i: number = 0; _masterArray.length > i; i++) {
+  //     _masterArray[i].isMasterClick = false;
+  //     [..._masterArray[i].VendorDetails].map(
+  //       (e: IBudTrackDistribution) => ((e.isClick = false), (e.isEdit = false))
+  //     );
+  //   }
 
-    if (trackItems.length === _masterArray.length) {
-      if (type === "edit") {
-        _masterArray[masIndex].VendorDetails[subIndex].isEdit = true;
-        curEditItem.ID = _masterArray[masIndex].VendorDetails[subIndex].ID;
-        curEditItem.ToDate =
-          _masterArray[masIndex].VendorDetails[subIndex].ToDate;
-        curEditItem.StartDate =
-          _masterArray[masIndex].VendorDetails[subIndex].StartDate;
-        curEditItem.Po = _masterArray[masIndex].VendorDetails[subIndex].Po;
-        curEditItem.PoCurrency =
-          _masterArray[masIndex].VendorDetails[subIndex].PoCurrency;
-        curEditItem.InvoiceNo =
-          _masterArray[masIndex].VendorDetails[subIndex].InvoiceNo;
+  //   if (trackItems.length === _masterArray.length) {
+  //     if (type === "edit") {
+  //       _masterArray[masIndex].VendorDetails[subIndex].isEdit = true;
+  //       curEditItem.ID = _masterArray[masIndex].VendorDetails[subIndex].ID;
+  //       curEditItem.ToDate =
+  //         _masterArray[masIndex].VendorDetails[subIndex].ToDate;
+  //       curEditItem.StartDate =
+  //         _masterArray[masIndex].VendorDetails[subIndex].StartDate;
+  //       curEditItem.Po = _masterArray[masIndex].VendorDetails[subIndex].Po;
+  //       curEditItem.PoCurrency =
+  //         _masterArray[masIndex].VendorDetails[subIndex].PoCurrency;
+  //       curEditItem.InvoiceNo =
+  //         _masterArray[masIndex].VendorDetails[subIndex].InvoiceNo;
 
-        setSelItems([]);
-        setCurEditItem({ ...curEditItem });
-        setTrackItems([..._masterArray]);
-      } else {
-        setSelItems([]);
-        setCurEditItem({ ...Config.TrackSelectedItem });
-        setTrackItems([..._masterArray]);
-      }
-    }
-  };
+  //       setSelItems([]);
+  //       setCurEditItem({ ...curEditItem });
+  //       setTrackItems([..._masterArray]);
+  //     } else {
+  //       setSelItems([]);
+  //       setCurEditItem({ ...Config.TrackSelectedItem });
+  //       setTrackItems([..._masterArray]);
+  //     }
+  //   }
+  // };
 
-  const handleChecked = (
-    isChecked: boolean,
-    masIndex: number,
-    subIndex: number,
-    type: string
-  ): void => {
-    let _masCateArray: IOverAllTrackItem[] = [...trackItems];
-    let _reArrangedArray: IOverAllTrackItem[] = [];
-    let _selVendorsArray: IBudTrackDistribution[] = [];
-    let _findIndexNo: number = null;
-    _isSelectAll = false;
+  // const handleChecked = (
+  //   isChecked: boolean,
+  //   masIndex: number,
+  //   subIndex: number,
+  //   type: string
+  // ): void => {
+  //   let _masCateArray: IOverAllTrackItem[] = [...trackItems];
+  //   let _reArrangedArray: IOverAllTrackItem[] = [];
+  //   let _selVendorsArray: IBudTrackDistribution[] = [];
+  //   let _findIndexNo: number = null;
+  //   _isSelectAll = false;
 
-    _findIndexNo = [...trackItems].findIndex(
-      (e: IOverAllTrackItem) => e.isMasterClick === true
-    );
+  //   _findIndexNo = [...trackItems].findIndex(
+  //     (e: IOverAllTrackItem) => e.isMasterClick === true
+  //   );
 
-    if (_findIndexNo >= 0) {
-      if (type === "all" && masIndex === _findIndexNo) {
-        _masCateArray[masIndex].isMasterClick = isChecked;
-        [..._masCateArray[masIndex].VendorDetails].map(
-          (e: IBudTrackDistribution) => (
-            (e.isClick = isChecked), (e.isEdit = false)
-          )
-        );
-        _selVendorsArray = [..._masCateArray[masIndex].VendorDetails].filter(
-          (e: IBudTrackDistribution) => e.isClick === true
-        );
-        _isSelectAll = isChecked;
-        setSelItems([..._selVendorsArray]);
-        setTrackItems([..._masCateArray]);
-      } else if (type === "all") {
-        for (let i: number = 0; _masCateArray.length > i; i++) {
-          _masCateArray[i].isMasterClick = false;
-          [..._masCateArray[i].VendorDetails].map(
-            (e: IBudTrackDistribution) => (
-              (e.isClick = false), (e.isEdit = false)
-            )
-          );
-          _reArrangedArray.push({ ..._masCateArray[i] });
-        }
-        if (_masCateArray.length === _reArrangedArray.length) {
-          _reArrangedArray[masIndex].isMasterClick = isChecked;
-          [..._reArrangedArray[masIndex].VendorDetails].map(
-            (e: IBudTrackDistribution) => (
-              (e.isClick = isChecked), (e.isEdit = false)
-            )
-          );
-          _selVendorsArray = [
-            ..._reArrangedArray[masIndex].VendorDetails,
-          ].filter((e: IBudTrackDistribution) => e.isClick === true);
-          _isSelectAll = isChecked;
-          setSelItems([..._selVendorsArray]);
-          setTrackItems([..._reArrangedArray]);
-        }
-      } else if (masIndex === _findIndexNo) {
-        _masCateArray[masIndex].isMasterClick = true;
-        _masCateArray[masIndex].VendorDetails[subIndex].isClick = isChecked;
-        _selVendorsArray = [..._masCateArray[masIndex].VendorDetails].filter(
-          (e: IBudTrackDistribution) => e.isClick === true
-        );
-        _isSelectAll = [..._masCateArray[masIndex].VendorDetails].every(
-          (e: IBudTrackDistribution) => e.isClick === true
-        );
-        setSelItems([..._selVendorsArray]);
-        setTrackItems([..._masCateArray]);
-      } else {
-        for (let i: number = 0; _masCateArray.length > i; i++) {
-          _masCateArray[i].isMasterClick = false;
-          [..._masCateArray[i].VendorDetails].map(
-            (e: IBudTrackDistribution) => (
-              (e.isClick = false), (e.isEdit = false)
-            )
-          );
-          _reArrangedArray.push({ ..._masCateArray[i] });
-        }
-        if (_masCateArray.length === _reArrangedArray.length) {
-          _reArrangedArray[masIndex].isMasterClick = true;
-          [..._reArrangedArray[masIndex].VendorDetails].map(
-            (e: IBudTrackDistribution) => (e.isEdit = false)
-          );
-          _reArrangedArray[masIndex].VendorDetails[subIndex].isClick =
-            isChecked;
-          _selVendorsArray = [
-            ..._reArrangedArray[masIndex].VendorDetails,
-          ].filter((e: IBudTrackDistribution) => e.isClick === true);
-          _isSelectAll = [..._reArrangedArray[masIndex].VendorDetails].every(
-            (e: IBudTrackDistribution) => e.isClick === true
-          );
-          setSelItems([..._selVendorsArray]);
-          setTrackItems([..._reArrangedArray]);
-        }
-      }
-    } else {
-      if (type === "all") {
-        _masCateArray[masIndex].isMasterClick = isChecked;
-        [..._masCateArray[masIndex].VendorDetails].map(
-          (e: IBudTrackDistribution) => (
-            (e.isClick = isChecked), (e.isEdit = false)
-          )
-        );
-        _selVendorsArray = [..._masCateArray[masIndex].VendorDetails].filter(
-          (e: IBudTrackDistribution) => e.isClick === true
-        );
-        _isSelectAll = isChecked;
-        setSelItems([..._selVendorsArray]);
-        setTrackItems([..._masCateArray]);
-      } else {
-        _masCateArray[masIndex].isMasterClick = isChecked;
-        [..._masCateArray[masIndex].VendorDetails].map(
-          (e: IBudTrackDistribution) => (e.isEdit = false)
-        );
-        _masCateArray[masIndex].VendorDetails[subIndex].isClick = isChecked;
-        _selVendorsArray = _masCateArray[masIndex].VendorDetails.filter(
-          (e: IBudTrackDistribution) => e.isClick === true
-        );
-        _isSelectAll =
-          _masCateArray[masIndex].VendorDetails.length === 1 ? true : false;
-        setSelItems([..._selVendorsArray]);
-        setTrackItems([..._masCateArray]);
-      }
-    }
-  };
+  //   if (_findIndexNo >= 0) {
+  //     if (type === "all" && masIndex === _findIndexNo) {
+  //       _masCateArray[masIndex].isMasterClick = isChecked;
+  //       [..._masCateArray[masIndex].VendorDetails].map(
+  //         (e: IBudTrackDistribution) => (
+  //           (e.isClick = isChecked), (e.isEdit = false)
+  //         )
+  //       );
+  //       _selVendorsArray = [..._masCateArray[masIndex].VendorDetails].filter(
+  //         (e: IBudTrackDistribution) => e.isClick === true
+  //       );
+  //       _isSelectAll = isChecked;
+  //       setSelItems([..._selVendorsArray]);
+  //       setTrackItems([..._masCateArray]);
+  //     } else if (type === "all") {
+  //       for (let i: number = 0; _masCateArray.length > i; i++) {
+  //         _masCateArray[i].isMasterClick = false;
+  //         [..._masCateArray[i].VendorDetails].map(
+  //           (e: IBudTrackDistribution) => (
+  //             (e.isClick = false), (e.isEdit = false)
+  //           )
+  //         );
+  //         _reArrangedArray.push({ ..._masCateArray[i] });
+  //       }
+  //       if (_masCateArray.length === _reArrangedArray.length) {
+  //         _reArrangedArray[masIndex].isMasterClick = isChecked;
+  //         [..._reArrangedArray[masIndex].VendorDetails].map(
+  //           (e: IBudTrackDistribution) => (
+  //             (e.isClick = isChecked), (e.isEdit = false)
+  //           )
+  //         );
+  //         _selVendorsArray = [
+  //           ..._reArrangedArray[masIndex].VendorDetails,
+  //         ].filter((e: IBudTrackDistribution) => e.isClick === true);
+  //         _isSelectAll = isChecked;
+  //         setSelItems([..._selVendorsArray]);
+  //         setTrackItems([..._reArrangedArray]);
+  //       }
+  //     } else if (masIndex === _findIndexNo) {
+  //       _masCateArray[masIndex].isMasterClick = true;
+  //       _masCateArray[masIndex].VendorDetails[subIndex].isClick = isChecked;
+  //       _selVendorsArray = [..._masCateArray[masIndex].VendorDetails].filter(
+  //         (e: IBudTrackDistribution) => e.isClick === true
+  //       );
+  //       _isSelectAll = [..._masCateArray[masIndex].VendorDetails].every(
+  //         (e: IBudTrackDistribution) => e.isClick === true
+  //       );
+  //       setSelItems([..._selVendorsArray]);
+  //       setTrackItems([..._masCateArray]);
+  //     } else {
+  //       for (let i: number = 0; _masCateArray.length > i; i++) {
+  //         _masCateArray[i].isMasterClick = false;
+  //         [..._masCateArray[i].VendorDetails].map(
+  //           (e: IBudTrackDistribution) => (
+  //             (e.isClick = false), (e.isEdit = false)
+  //           )
+  //         );
+  //         _reArrangedArray.push({ ..._masCateArray[i] });
+  //       }
+  //       if (_masCateArray.length === _reArrangedArray.length) {
+  //         _reArrangedArray[masIndex].isMasterClick = true;
+  //         [..._reArrangedArray[masIndex].VendorDetails].map(
+  //           (e: IBudTrackDistribution) => (e.isEdit = false)
+  //         );
+  //         _reArrangedArray[masIndex].VendorDetails[subIndex].isClick =
+  //           isChecked;
+  //         _selVendorsArray = [
+  //           ..._reArrangedArray[masIndex].VendorDetails,
+  //         ].filter((e: IBudTrackDistribution) => e.isClick === true);
+  //         _isSelectAll = [..._reArrangedArray[masIndex].VendorDetails].every(
+  //           (e: IBudTrackDistribution) => e.isClick === true
+  //         );
+  //         setSelItems([..._selVendorsArray]);
+  //         setTrackItems([..._reArrangedArray]);
+  //       }
+  //     }
+  //   } else {
+  //     if (type === "all") {
+  //       _masCateArray[masIndex].isMasterClick = isChecked;
+  //       [..._masCateArray[masIndex].VendorDetails].map(
+  //         (e: IBudTrackDistribution) => (
+  //           (e.isClick = isChecked), (e.isEdit = false)
+  //         )
+  //       );
+  //       _selVendorsArray = [..._masCateArray[masIndex].VendorDetails].filter(
+  //         (e: IBudTrackDistribution) => e.isClick === true
+  //       );
+  //       _isSelectAll = isChecked;
+  //       setSelItems([..._selVendorsArray]);
+  //       setTrackItems([..._masCateArray]);
+  //     } else {
+  //       _masCateArray[masIndex].isMasterClick = isChecked;
+  //       [..._masCateArray[masIndex].VendorDetails].map(
+  //         (e: IBudTrackDistribution) => (e.isEdit = false)
+  //       );
+  //       _masCateArray[masIndex].VendorDetails[subIndex].isClick = isChecked;
+  //       _selVendorsArray = _masCateArray[masIndex].VendorDetails.filter(
+  //         (e: IBudTrackDistribution) => e.isClick === true
+  //       );
+  //       _isSelectAll =
+  //         _masCateArray[masIndex].VendorDetails.length === 1 ? true : false;
+  //       setSelItems([..._selVendorsArray]);
+  //       setTrackItems([..._masCateArray]);
+  //     }
+  //   }
+  // };
 
   const handleUpdate = (Item): void => {
     let json: ITrackUpdateItem = {
@@ -875,7 +881,7 @@ const BudgetTrackingList = (props: any): JSX.Element => {
         // handleChange(Item.ID, "isEdit", false);
       })
       .catch((error: any) => {
-        _getErrorFunction("Vendor details update issue");
+        _getErrorFunction(error, "Vendor details update issue");
       });
   };
 
@@ -906,7 +912,7 @@ const BudgetTrackingList = (props: any): JSX.Element => {
         handleCheck(selItems[0].Title, false, "clear");
       })
       .catch((err: any) => {
-        _getErrorFunction(err);
+        _getErrorFunction(err, "handle send");
       });
   };
 
@@ -937,8 +943,6 @@ const BudgetTrackingList = (props: any): JSX.Element => {
       Orderbydecorasc: false,
     })
       .then((resDis: any) => {
-        console.log("resDis", resDis);
-
         let _arrDis: any[] = [];
         if (resDis.length) {
           for (let i = 0; i < resDis.length; i++) {
@@ -994,9 +998,7 @@ const BudgetTrackingList = (props: any): JSX.Element => {
               isEdit: false,
             });
             // });
-            // console.log(TrackTitles);
           }
-          // console.log(_arrDis);
 
           // setIsLoader(false);
           // groupSplit([..._arrDis]);
@@ -1010,7 +1012,7 @@ const BudgetTrackingList = (props: any): JSX.Element => {
         }
       })
       .catch((err: any) => {
-        _getErrorFunction(err);
+        _getErrorFunction(err, "get vendor details");
       });
   };
   const _areaFilterFun = (_arrDis: any[]): void => {
@@ -1089,7 +1091,6 @@ const BudgetTrackingList = (props: any): JSX.Element => {
       let MGrpData = Data.filter((val) => {
         return gName == val.Title;
       });
-      console.log([...MGrpData].every((val) => val.isClick == true));
 
       MData.push({
         Title: gName,
@@ -1097,64 +1098,60 @@ const BudgetTrackingList = (props: any): JSX.Element => {
         VendorDetails: [...MGrpData],
       });
     });
-    // console.log(MData);
 
     setTrackItems([...MData]);
   };
 
-  const isEditItem = (Id: Number, flag: string) => {
-    let MData = [...Changedata];
-    let Change = [];
-    console.log("mas", Master);
+  // const isEditItem = (Id: Number, flag: string) => {
+  //   let MData = [...Changedata];
+  //   let Change = [];
 
-    if (flag == "edit") {
-      MData.forEach((val) => {
-        if (val.ID == Id) {
-          val.isEdit = true;
-        } else {
-          val.StartDate = null;
-          val.ToDate = null;
-          val.Po = "";
-          val.PoCurrency = "";
-          val.InvoiceNo = "";
-          val.isEdit = false;
-        }
-        Change.push(val);
-      });
-      // for (let i = 0; i < Master.length; i++) {
-      //   if (Id == MData[i].ID) {
-      //     MData[i].isEdit = true;
-      //     MData[i].StartDate = Master[i];
-      //     MData[i].ToDate = null;
-      //     MData[i].Po = "";
-      //     MData[i].PoCurrency = "";
-      //     MData[i].InvoiceNo = "";
-      //     MData[i].isEdit = false;
-      //   } else {
-      //     MData[i].isEdit = false;
-      //   }
-      // }
-    } else {
-      // MData.forEach((val) => {
-      //   val.isEdit = false;
-      //   Change.push(val);
-      // });
-      Change = [...Changedata];
-      let Index = MData.findIndex((val) => val.ID == Id);
-      Change[Index] = { ...curEditItem };
-      console.log(Change);
-    }
-    // let Index = MData.findIndex((val) => val.ID == Id);
-    // MData[Index][key] = value;
-    // setMaster([...MData]);
-    groupSplit([...Change]);
-  };
+  //   if (flag == "edit") {
+  //     MData.forEach((val) => {
+  //       if (val.ID == Id) {
+  //         val.isEdit = true;
+  //       } else {
+  //         val.StartDate = null;
+  //         val.ToDate = null;
+  //         val.Po = "";
+  //         val.PoCurrency = "";
+  //         val.InvoiceNo = "";
+  //         val.isEdit = false;
+  //       }
+  //       Change.push(val);
+  //     });
+  // for (let i = 0; i < Master.length; i++) {
+  //   if (Id == MData[i].ID) {
+  //     MData[i].isEdit = true;
+  //     MData[i].StartDate = Master[i];
+  //     MData[i].ToDate = null;
+  //     MData[i].Po = "";
+  //     MData[i].PoCurrency = "";
+  //     MData[i].InvoiceNo = "";
+  //     MData[i].isEdit = false;
+  //   } else {
+  //     MData[i].isEdit = false;
+  //   }
+  // }
+  // } else {
+  // MData.forEach((val) => {
+  //   val.isEdit = false;
+  //   Change.push(val);
+  // });
+  //   Change = [...Changedata];
+  //   let Index = MData.findIndex((val) => val.ID == Id);
+  //   Change[Index] = { ...curEditItem };
+  // }
+  // let Index = MData.findIndex((val) => val.ID == Id);
+  // MData[Index][key] = value;
+  // setMaster([...MData]);
+  //   groupSplit([...Change]);
+  // };
   const handleChange = (Id: Number, key: string, value: any) => {
     let MData = [...Changedata];
     let Index = MData.findIndex((val) => val.ID == Id);
     let item = MData[Index];
     // setMaster([...MData]);
-    // console.log("mas", Master);
     if (key == "isEdit" && !value) {
       let index = Master.findIndex((val) => val.ID == Id);
       MData[Index] = Master[index];
@@ -1593,7 +1590,6 @@ const BudgetTrackingList = (props: any): JSX.Element => {
                                   onClick={() => {
                                     // _getEditItem(index, i, "edit");
                                     // isEditItem(data.ID, "edit");
-                                    // console.log(data);
 
                                     // setCurEditItem(data);
                                     if (!data.isClick) {

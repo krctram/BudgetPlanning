@@ -311,8 +311,9 @@ const BudgetCategory = (props: any): JSX.Element => {
   };
 
   /* function creation */
-  const _getErrorFunction = (errMsg: any): void => {
-    alertify.error(errMsg);
+  const _getErrorFunction = (errMsg: any, name: string): void => {
+    console.log(name, errMsg);
+    alertify.error(name);
     setIsLoader(false);
   };
 
@@ -387,7 +388,7 @@ const BudgetCategory = (props: any): JSX.Element => {
         )
       )
       .catch((err: any) => {
-        _getErrorFunction("Error writing excel export");
+        _getErrorFunction(err, "Error writing excel export");
       });
   };
 
@@ -512,7 +513,7 @@ const BudgetCategory = (props: any): JSX.Element => {
         }
       })
       .catch((err: any) => {
-        _getErrorFunction("Get category data");
+        _getErrorFunction(err, "Get category data");
       });
   };
 
@@ -625,7 +626,7 @@ const BudgetCategory = (props: any): JSX.Element => {
             setIsLoader(false);
             addBackupData();
           })
-          .catch((err) => _getErrorFunction("Add category data"));
+          .catch((err) => _getErrorFunction(err, "Add category data"));
       } else {
         setImportExcelDataView({
           addExcelData: [
@@ -794,7 +795,7 @@ const BudgetCategory = (props: any): JSX.Element => {
       responseData: backupData,
     })
       .then((data) => console.log("Backup data added succefully"))
-      .catch((error) => _getErrorFunction("Backup data set"));
+      .catch((error) => _getErrorFunction(error, "Backup data set"));
   };
 
   /* Life cycle of onload */

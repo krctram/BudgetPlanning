@@ -254,8 +254,9 @@ const VendorCreate = (props: any): JSX.Element => {
     },
   };
 
-  const _getErrorFunction = (errMsg: any): void => {
-    alertify.error("Error Message");
+  const _getErrorFunction = (errMsg: any, name: string): void => {
+    console.log(name, errMsg);
+    alertify.error(name);
     setIsLoader(false);
   };
 
@@ -288,7 +289,7 @@ const VendorCreate = (props: any): JSX.Element => {
           setMaster([...vendorListData]);
         }
       })
-      .catch((err) => _getErrorFunction(err));
+      .catch((err) => _getErrorFunction(err, "Get vendor"));
   };
 
   const vendorValidation = (arr: IVendorList[]): IVendorList[] => {
@@ -382,7 +383,7 @@ const VendorCreate = (props: any): JSX.Element => {
             setIsLoader(false);
             setIstrigger(!istrigger);
           })
-          .catch((err) => _getErrorFunction(err));
+          .catch((err) => _getErrorFunction(err, "Add masvendor"));
       } else {
         setNewVendor([{ VendorId: null, Vendor: "", Validate: false }]);
         setIsLoader(false);
@@ -433,7 +434,7 @@ const VendorCreate = (props: any): JSX.Element => {
         setIstrigger(!istrigger);
       })
       .catch((err) => {
-        _getErrorFunction(err);
+        _getErrorFunction(err, "Delete vendor");
       });
   };
 

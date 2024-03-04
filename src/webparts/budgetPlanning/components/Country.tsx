@@ -17,6 +17,7 @@ import {
   ISearchBoxStyles,
   Icon,
   ITextFieldStyles,
+  IModalStyles,
 } from "@fluentui/react";
 import { Config } from "../../../globals/Config";
 import Loader from "./Loader";
@@ -110,17 +111,36 @@ const Country = (props: any): JSX.Element => {
             />
           </div>
         ) : (
-          <Icon
-            iconName="Edit"
+          <div
             style={{
-              color: "blue",
-              fontSize: "16px",
-              cursor: "pointer",
+              display: "flex",
+              gap: "1%",
             }}
-            onClick={() => {
-              _getEditFunction({ ...item }, "Edit");
-            }}
-          />
+          >
+            <Icon
+              iconName="Edit"
+              style={{
+                color: "blue",
+                fontSize: "16px",
+                cursor: "pointer",
+              }}
+              onClick={() => {
+                _getEditFunction({ ...item }, "Edit");
+              }}
+            />
+            <Icon
+              iconName="Delete"
+              style={{
+                color: "red",
+                fontSize: "16px",
+                cursor: "pointer",
+              }}
+              onClick={() => {
+                setIsDeletePopup({ isDelete: true, Id: item.ID });
+                // _getEditFunction({ ...item }, "Edit");
+              }}
+            />
+          </div>
         );
       },
     },
@@ -146,6 +166,10 @@ const Country = (props: any): JSX.Element => {
   });
   const [editCountry, setEditCountry] = useState<any>();
   const [isValid, setIsValid] = useState<boolean>(false);
+  const [isDeletePopup, setIsDeletePopup] = useState({
+    isDelete: false,
+    Id: null,
+  });
 
   /* Style Section */
   const _DetailsListStyle: Partial<IDetailsListStyles> = {
@@ -303,9 +327,26 @@ const Country = (props: any): JSX.Element => {
     },
   };
 
+  const modalStyles: Partial<IModalStyles> = {
+    main: {
+      width: "20%",
+      minHeight: 128,
+      background: "#f7f9fa",
+      padding: 10,
+      height: "auto",
+      borderRadius: 4,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      textAlign: "center",
+      overflow: "unset",
+    },
+  };
+
   /* function creation */
-  const _getErrorFunction = (errMsg: string): void => {
-    alertify.error(errMsg);
+  const _getErrorFunction = (errMsg: string, name: string): void => {
+    console.log(name, errMsg);
+    alertify.error(name);
     setIsLoader(false);
   };
 
@@ -314,6 +355,13 @@ const Country = (props: any): JSX.Element => {
       Listname: Config.ListNames.CountryList,
       Topcount: 5000,
       Orderbydecorasc: false,
+      Filter: [
+        {
+          FilterKey: "IsDeleted",
+          Operator: "ne",
+          FilterValue: "1",
+        },
+      ],
     })
       .then((resMasCountry) => {
         let countryListData = [];
@@ -332,7 +380,7 @@ const Country = (props: any): JSX.Element => {
           setMaster([...countryListData]);
         }
       })
-      .catch((err) => _getErrorFunction("get country data"));
+      .catch((err) => _getErrorFunction(err, "get country data"));
   };
 
   const countryValidation = (arr: ICountryList[]): ICountryList[] => {
@@ -428,7 +476,7 @@ const Country = (props: any): JSX.Element => {
             setCountryPopup(false);
             setIsLoader(false);
           })
-          .catch((err) => _getErrorFunction("Add country data"));
+          .catch((err) => _getErrorFunction(err, "Add country data"));
       } else {
         setNewCountry([{ Country: "", Validate: false }]);
         setIsLoader(false);
@@ -564,7 +612,33 @@ const Country = (props: any): JSX.Element => {
         }
       })
       .catch((err: any) => {
-        _getErrorFunction("Update country data");
+        _getErrorFunction(err, "Update country data");
+      });
+  };
+
+  const handleDelete = () => {
+    SPServices.SPUpdateItem({
+      Listname: Config.ListNames.CountryList,
+      ID: isDeletePopup.Id,
+      RequestJSON: { IsDeleted: true },
+    })
+      .then((delItem) => {
+        let _masArray: any[] = [...MData];
+        let index: number = [...MData].findIndex(
+          (value) => value.ID === isDeletePopup.Id
+        );
+        _masArray.splice(index, 1);
+        setMData([..._masArray]);
+        setMaster([..._masArray]);
+        setIsDeletePopup({
+          isDelete: false,
+          Id: null,
+        });
+        setIsLoader(false);
+      })
+
+      .catch((err) => {
+        _getErrorFunction(err, "Country delete");
       });
   };
 
@@ -736,6 +810,86 @@ const Country = (props: any): JSX.Element => {
               addMasterCountryData([...newCountry]);
             }}
           />
+        </div>
+      </Modal>
+      <Modal
+        isOpen={isDeletePopup.isDelete}
+        isBlocking={false}
+        styles={modalStyles}
+      >
+        <div>
+          {/* Content section */}
+          {/* img */}
+          <div className={styles.deleteIconCircle}>
+            <IconButton
+              className={styles.deleteImg}
+              iconProps={{ iconName: "Delete" }}
+            />
+          </div>
+
+          <Label
+            style={{
+              color: "red",
+              fontSize: 16,
+            }}
+          >
+            Do you want to delete this country?
+          </Label>
+
+          {/* btn section */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              gap: "6%",
+              marginTop: "20px",
+            }}
+          >
+            <button
+              style={{
+                width: "26%",
+                height: 32,
+                background: "#dc3120",
+                border: "none",
+                color: "#FFF",
+                borderRadius: "3px",
+                cursor: "pointer",
+                padding: "4px 0px",
+              }}
+              onClick={() => {
+                // _curItem = undefined;
+                // setIsModal(false);
+                // setIsDelModal(false);
+                // deleteId = null;
+                setIsDeletePopup({
+                  isDelete: false,
+                  Id: null,
+                });
+              }}
+            >
+              No
+            </button>
+            <button
+              style={{
+                width: "26%",
+                height: 32,
+                color: "#FFF",
+                background: "#2580e0",
+                border: "none",
+                borderRadius: "3px",
+                cursor: "pointer",
+                padding: "4px 0px",
+              }}
+              onClick={() => {
+                setIsLoader(true);
+                handleDelete();
+                // setIsLoader(true);
+                // _getUnlink();
+              }}
+            >
+              Yes
+            </button>
+          </div>
         </div>
       </Modal>
     </div>

@@ -238,7 +238,6 @@ const VendorConfig = (props: any): JSX.Element => {
     SearchFilter: "",
   });
   const [arrId, setArrId] = useState<IVendorBudget[]>([]);
-  console.log("arrId > ", arrId);
 
   /* Style Section */
   const _DetailsListStyle: Partial<IDetailsListStyles> = {
@@ -356,8 +355,10 @@ const VendorConfig = (props: any): JSX.Element => {
   };
 
   /* function creation */
-  const _getErrorFunction = (errMsg: any): void => {
-    alertify.error("Error Message");
+  const _getErrorFunction = (errMsg: any, name: string): void => {
+    console.log(name, errMsg);
+    alertify.error(name);
+    setIsLoader(false);
   };
 
   const _getDefaultFunction = (): void => {
@@ -425,7 +426,7 @@ const VendorConfig = (props: any): JSX.Element => {
         }
       })
       .catch((err: any) => {
-        _getErrorFunction(err);
+        _getErrorFunction(err, "Get mascategory");
       });
   };
 
@@ -484,7 +485,7 @@ const VendorConfig = (props: any): JSX.Element => {
         }
       })
       .catch((err: any) => {
-        _getErrorFunction(err);
+        _getErrorFunction(err, "Get budget");
       });
   };
 
@@ -578,7 +579,7 @@ const VendorConfig = (props: any): JSX.Element => {
         }
       })
       .catch((err: any) => {
-        _getErrorFunction(err);
+        _getErrorFunction(err, "Get vendor config");
       });
   };
 
@@ -976,7 +977,7 @@ const VendorConfig = (props: any): JSX.Element => {
           }
         })
         .catch((err: any) => {
-          _getErrorFunction(err);
+          _getErrorFunction(err, "Update calculation");
         });
     }
   };

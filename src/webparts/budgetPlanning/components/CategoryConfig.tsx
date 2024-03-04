@@ -217,8 +217,9 @@ const CategoryConfig = (props: any): JSX.Element => {
   };
 
   /* function creation */
-  const _getErrorFunction = (errMsg: any): void => {
-    alertify.error(errMsg);
+  const _getErrorFunction = (errMsg: any, name: string): void => {
+    console.log(name, errMsg);
+    alertify.error(name);
     setIsLoader(false);
   };
 
@@ -300,7 +301,7 @@ const CategoryConfig = (props: any): JSX.Element => {
         }
       })
       .catch((err: any) => {
-        _getErrorFunction("Get category records");
+        _getErrorFunction(err, "Get category records");
       });
   };
 
@@ -451,7 +452,7 @@ const CategoryConfig = (props: any): JSX.Element => {
         alertify.success("Category config's done");
       })
       .catch((err: any) => {
-        _getErrorFunction("Bulk insert");
+        _getErrorFunction(err, "Bulk insert");
       });
   };
 
@@ -469,7 +470,7 @@ const CategoryConfig = (props: any): JSX.Element => {
         alertify.success(`${modalText} config unlink success`);
       })
       .catch((err: any) => {
-        _getErrorFunction("Get unlink category");
+        _getErrorFunction(err, "Get unlink category");
       });
   };
 

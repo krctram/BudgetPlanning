@@ -309,8 +309,9 @@ const BudgetAnalysis = (props: any): JSX.Element => {
   };
 
   // functions creations
-  const _getErrorFunction = (errMsg: any): void => {
-    alertify.error(errMsg);
+  const _getErrorFunction = (errMsg: any, name: string): void => {
+    console.log(name, errMsg);
+    alertify.error(name);
     setIsLoader(false);
   };
 
@@ -374,7 +375,7 @@ const BudgetAnalysis = (props: any): JSX.Element => {
         setBudgetItems(newItems);
         getDropdownValues(newItems);
       })
-      .catch((error: any) => _getErrorFunction("Get budgjet data"));
+      .catch((error: any) => _getErrorFunction(error, "Get budget data"));
   };
 
   const getDropdownValues = (items: ICurBudgetAnalysis[]): void => {
@@ -490,7 +491,7 @@ const BudgetAnalysis = (props: any): JSX.Element => {
         RequestJSON: json,
       })
         .then((data) => console.log("data updated succesfully"))
-        .catch((error) => _getErrorFunction("Budget update"));
+        .catch((error) => _getErrorFunction(error, "Budget update"));
     }
   };
 
@@ -591,7 +592,7 @@ const BudgetAnalysis = (props: any): JSX.Element => {
         )
       )
       .catch((err: any) => {
-        _getErrorFunction("Error writing excel export");
+        _getErrorFunction(err, "Error writing excel export");
       });
   };
 
@@ -639,7 +640,7 @@ const BudgetAnalysis = (props: any): JSX.Element => {
         getAllData(filPeriodDrop);
       })
       .catch((err: any) => {
-        _getErrorFunction("Get update import datas");
+        _getErrorFunction(err, "Get update import datas");
       });
   };
 

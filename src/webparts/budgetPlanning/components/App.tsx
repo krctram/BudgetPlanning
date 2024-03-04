@@ -85,8 +85,9 @@ const App = (props: any): JSX.Element => {
   const [directors, setDirectors] = useState<IUserDetail[]>([]);
 
   /* Function creation */
-  const _getErrorFunction = (errMsg: any): void => {
+  const _getErrorFunction = (errMsg: any, name: string): void => {
     alertify.error("Error message");
+    console.log(name, errMsg);
   };
 
   const _getCountryConfigData = (): void => {
@@ -123,7 +124,7 @@ const App = (props: any): JSX.Element => {
         getUsers([..._countryData]);
       })
       .catch((err: any) => {
-        _getErrorFunction(err);
+        _getErrorFunction(err, "Get Country Configdata");
       });
   };
 
@@ -196,7 +197,7 @@ const App = (props: any): JSX.Element => {
           }
         })
         .catch((error) => {
-          _getErrorFunction("get users erroe");
+          _getErrorFunction(error, "get users error");
         });
     }
   };
@@ -266,6 +267,13 @@ const App = (props: any): JSX.Element => {
           Listname: Config.ListNames.CountryList,
           Orderby: Config.CountryListColumns.Title,
           Orderbydecorasc: true,
+          Filter: [
+            {
+              FilterKey: "IsDeleted",
+              Operator: "ne",
+              FilterValue: "1",
+            },
+          ],
         })
           .then((resType: any[]) => {
             let _countryDrop: IDrop[] = [{ key: 0, text: "All" }];
@@ -412,26 +420,29 @@ const App = (props: any): JSX.Element => {
                         _getPageName();
                       })
                       .catch((err: any) => {
-                        _getErrorFunction(err);
+                        _getErrorFunction(err, "Create dropdown vendorconfig");
                       });
 
                     // setDropValue({ ...dropValue });
                     // _getPageName();
                   })
                   .catch((err: any) => {
-                    _getErrorFunction(err);
+                    _getErrorFunction(
+                      err,
+                      "Create dropdown MasterCategoryList"
+                    );
                   });
               })
               .catch((err: any) => {
-                _getErrorFunction(err);
+                _getErrorFunction(err, "Create dropdown CategoryList");
               });
           })
           .catch((err: any) => {
-            _getErrorFunction(err);
+            _getErrorFunction(err, "Create dropdown CountryList");
           });
       })
       .catch((err: any) => {
-        _getErrorFunction(err);
+        _getErrorFunction(err, "Create dropdown YearList");
       });
   };
 

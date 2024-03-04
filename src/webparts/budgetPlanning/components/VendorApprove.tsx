@@ -266,9 +266,10 @@ const VendorApprove = (props: any): JSX.Element => {
   };
 
   /* function creation */
-  const _getErrorFunction = (errMsg: any): void => {
-    console.log(errMsg);
-    alertify.error("Error Message");
+  const _getErrorFunction = (errMsg: any, name: string): void => {
+    console.log(name, errMsg);
+    alertify.error(name);
+    setIsLoader(false);
   };
 
   const _getDefaultFunction = (): void => {
@@ -276,10 +277,63 @@ const VendorApprove = (props: any): JSX.Element => {
     _Area = "Please select";
     _Country = "Please select";
     _Type = "Please select";
-    _getVendorDetail();
+    GetAllData();
   };
 
-  const _getVendorDetail = (): void => {
+  const GetAllData = () => {
+    SPServices.SPReadItems({
+      Listname: Config.ListNames.VendorConfig,
+      Select: "*,  AttachmentFiles",
+      Expand: "AttachmentFiles",
+      // Filter: [
+      //     {
+      //       FilterKey: "CountryId",
+      //       Operator: "eq",
+      //       FilterValue: props.subCatDet.CounId,
+      //     },
+      // {
+      //   FilterKey: "Area",
+      //   Operator: "eq",
+      //   FilterValue: props.subCatDet.Area,
+      // },
+      //   {
+      //     FilterKey: "CategoryType",
+      //     Operator: "eq",
+      //     FilterValue: props.subCatDet.Type,
+      //   },
+      // ],
+    })
+      .then((res: any) => {
+        let VendorDetailsData: any[] = [];
+
+        if (res.length)
+          for (let i: number = 0; res.length > i; i++) {
+            let _Attach: IAttach[] = [];
+
+            res[i].AttachmentFiles.length &&
+              res[i].AttachmentFiles.forEach((e: any) => {
+                _Attach.push({
+                  Name: e.FileName ? e.FileName : "",
+                  Path: e.ServerRelativePath.DecodedUrl
+                    ? e.ServerRelativePath.DecodedUrl
+                    : "",
+                });
+              });
+
+            VendorDetailsData.push({
+              ID: res[i].ID,
+              Attachments: [..._Attach],
+            });
+          }
+
+        _getVendorDetail(VendorDetailsData);
+      })
+      .catch((err: any) => {
+        _getErrorFunction(err, "Category List Reading error");
+      });
+  };
+
+  const _getVendorDetail = (VendorConfig): void => {
     SPServices.SPReadItems({
       Listname: Config.ListNames.VendorDetails,
       Select:
@@ -310,20 +364,22 @@ const VendorApprove = (props: any): JSX.Element => {
           for (let i: number = 0; res.length > i; i++) {
             // if (res[i].BudgetId && res[i].BudgetId.includes(props._selID)) {
             if (res[i].BudgetId == props._selID) {
-              let _Attach: IAttach[] = [];
+              // let _Attach: IAttach[] = [];
 
               _isData = true;
 
-              res[i].AttachmentFiles.length &&
-                res[i].AttachmentFiles.forEach((e: any) => {
-                  _Attach.push({
-                    Name: e.FileName ? e.FileName : "",
-                    Path: e.ServerRelativePath.DecodedUrl
-                      ? e.ServerRelativePath.DecodedUrl
-                      : "",
-                  });
-                });
-
+              // res[i].AttachmentFiles.length &&
+              //   res[i].AttachmentFiles.forEach((e: any) => {
+              //     _Attach.push({
+              //       Name: e.FileName ? e.FileName : "",
+              //       Path: e.ServerRelativePath.DecodedUrl
+              //         ? e.ServerRelativePath.DecodedUrl
+              //         : "",
+              //     });
+              //   });
+              let _Attach = VendorConfig.filter((VenCon) => {
+                return VenCon.ID == res[i].VendorConfigId;
+              });
               _masIteams.push({
                 ID: res[i].ID,
                 Description: res[i].Title ? res[i].Title : "-",
@@ -349,7 +405,7 @@ const VendorApprove = (props: any): JSX.Element => {
                 RequestedAmount: res[i].RequestedAmount
                   ? res[i].RequestedAmount
                   : 0,
-                Attachments: [..._Attach],
+                Attachments: _Attach.length ? _Attach[0].Attachments : [],
                 index: 0,
                 VendorConfig: res[i].VendorConfig ? res[i].VendorConfig : null,
               });
@@ -369,7 +425,7 @@ const VendorApprove = (props: any): JSX.Element => {
         }
       })
       .catch((err: any) => {
-        _getErrorFunction(err);
+        _getErrorFunction(err, "Get vendor approve");
       });
   };
 

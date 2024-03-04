@@ -36,7 +36,6 @@ let isOpex: boolean = false;
 
 const Supplier = (props: any): JSX.Element => {
   const currentUser = props.currentUser;
-  // console.log("currentUser", currentUser);
 
   const allCoumns = [
     {
@@ -208,7 +207,6 @@ const Supplier = (props: any): JSX.Element => {
   let columns = isOpex ? [...allCoumns] : [...allCoumns].slice(0, 4);
 
   propDropValue = props.dropValue;
-  // console.log("propDropValue/", propDropValue);
 
   const [isLoader, setIsLoader] = useState<boolean>(true);
   const [isSubmitBtn, setIsSubmitBtn] = useState<boolean>(false);
@@ -395,6 +393,11 @@ const Supplier = (props: any): JSX.Element => {
       },
     },
   };
+  const _getErrorFunction = (errMsg: any, name: string) => {
+    setIsLoader(false);
+    console.log(name, errMsg);
+    alertify.error(name);
+  };
 
   const getDefaultFunction = () => {
     setIsLoader(true);
@@ -422,7 +425,9 @@ const Supplier = (props: any): JSX.Element => {
           setIsLoader(false);
         }
       })
-      .catch((err) => console.log("country config get"));
+      .catch((err) => {
+        _getErrorFunction(err, "Get country dropdown");
+      });
   };
 
   const getAllCountry = (result: any) => {
@@ -511,12 +516,11 @@ const Supplier = (props: any): JSX.Element => {
         getAllAreas(res, vendorDtls);
       })
       .catch((err: any) => {
-        console.log("err", err);
+        _getErrorFunction(err, "Get area dropdown");
       });
   };
 
   const getAllAreas = (datas: any, vendorDtls) => {
-    console.log("datas", datas);
     let allData = [...datas];
     let allArea = [];
     allData.forEach((value: any) => {
@@ -558,11 +562,9 @@ const Supplier = (props: any): JSX.Element => {
 
   const setAttachmentData = (files: any) => {
     let attachments = [];
-    // console.log("files", files);
     for (let i = 0; i < files.length; i++) {
       attachments.push({ name: files[i].name, content: files[i] });
     }
-    // console.log("attachments", attachments);
     setVendorDetails({ ...vendorDetails, Attachments: attachments });
   };
 
@@ -611,19 +613,19 @@ const Supplier = (props: any): JSX.Element => {
     }
 
     if (validations.AreaValidate) {
-      alertify.error("Please choese the Area");
+      alertify.error("Please choose the Area");
     } else if (validations.CountryValidate) {
-      alertify.error("Please choese the Country");
+      alertify.error("Please choose the Country");
     } else if (validations.TypeValidate) {
-      alertify.error("Please choese the Type");
+      alertify.error("Please choose the Type");
     } else if (validations.DescriptionValidate) {
       alertify.error("Please enter the description");
     } else if (validations.NumberOfVendorValidate) {
-      alertify.error("Please choese the number of vendors");
+      alertify.error("Please choose the number of vendors");
     } else if (validations.AttachmentsValidate) {
-      alertify.error("Please choese the type");
+      alertify.error("Please choose the type");
     } else if (validations.CommentsValidate) {
-      alertify.error("Please choese the type");
+      alertify.error("Please choose the type");
     }
 
     setVendorDetailsValidaion({ ...validations });
@@ -677,13 +679,6 @@ const Supplier = (props: any): JSX.Element => {
       (value: ISuplierData) => Number(value.Pricing) === 0
     ).length;
 
-    console.log(
-      "vendorNameValidate",
-      vendorNameValidate,
-      "pricingValidate",
-      pricingValidate
-    );
-
     if (vendorNameValidate > 1 && !pricingValidate) {
       alertify.error("Please fill the manditory venor name field");
     } else if (!vendorNameValidate && pricingValidate > 1) {
@@ -732,17 +727,17 @@ const Supplier = (props: any): JSX.Element => {
         })
           .then((res) => {
             let attachments = [...vendorDetails.Attachments];
-            console.log("attachments", attachments);
             let ID = res.data.ID;
             SPServices.SPAddAttachments({
               ListName: Config.ListNames.VendorConfig,
               ListID: ID,
               Attachments: [...vendorDetails.Attachments],
-            }).then((res) => {
-              console.log("attachment added succesfully");
-            });
+            })
+              .then((err) => {})
+              .catch((err) => _getErrorFunction(err, "attachment added"));
+            alertify.success("added succesfully");
           })
-          .catch((err) => alertify.error("err", console.log(err)));
+          .catch((err) => _getErrorFunction(err, "Add vendor config"));
         i === json.length - 1 && props._getVendorNave("");
       }
     }
@@ -751,7 +746,6 @@ const Supplier = (props: any): JSX.Element => {
   const handleBack = (type: string) => {
     setIsLoader(true);
     let value = type !== "";
-    console.log("type", value);
     setIsviewSupplier(value);
     if (!value) {
       setVendorDetails({ ...Config.SuplierDetails });
@@ -952,10 +946,11 @@ const Supplier = (props: any): JSX.Element => {
                   <label
                     htmlFor="AttachmentFile"
                     style={{
-                      border: `1px solid ${vendorDetailsValidation.AttachmentsValidate
+                      border: `1px solid ${
+                        vendorDetailsValidation.AttachmentsValidate
                           ? "red"
                           : "black"
-                        }`,
+                      }`,
                       paddingLeft: "8px",
                       cursor: "pointer",
                       display: "flex",

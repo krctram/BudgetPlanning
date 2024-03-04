@@ -375,8 +375,9 @@ const BudgetPlan = (props: any): JSX.Element => {
                     cursor: "pointer",
                   }}
                   onClick={() => {
-                    !_isSubmit && _getValidation();
-                    _isSubmit = true;
+                    // !_isSubmit && _getValidation();
+                    // _isSubmit = true;
+                    _getValidation();
                   }}
                 />
                 <Icon
@@ -625,8 +626,9 @@ const BudgetPlan = (props: any): JSX.Element => {
   };
 
   /* function creation */
-  const _getErrorFunction = (errMsg: any): void => {
-    alertify.error("Error Message");
+  const _getErrorFunction = (errMsg: any, name: string): void => {
+    console.log(name, errMsg);
+    alertify.error(name);
     setIsLoader(false);
   };
 
@@ -802,7 +804,7 @@ const BudgetPlan = (props: any): JSX.Element => {
           )
         )
         .catch((err: any) => {
-          _getErrorFunction("Error writing excel export");
+          _getErrorFunction(err, "Error writing excel export");
         });
     } else {
       alertify.error("There are no sub categories");
@@ -1000,7 +1002,7 @@ const BudgetPlan = (props: any): JSX.Element => {
         }
       })
       .catch((err: any) => {
-        _getErrorFunction(err);
+        _getErrorFunction(err, "Get category list");
       });
   };
 
@@ -1138,7 +1140,7 @@ const BudgetPlan = (props: any): JSX.Element => {
         }
       })
       .catch((err: any) => {
-        _getErrorFunction(err);
+        _getErrorFunction(err, "Get budget list");
       });
   };
 
@@ -1576,43 +1578,48 @@ const BudgetPlan = (props: any): JSX.Element => {
     if (!curData.Description.trim() || _isDuplicate) {
       _isValid = false;
       isValidation.isDescription = _isDuplicate ? _isDuplicate : true;
-      isValidation.isBudgetRequired = curData.BudgetAllocated ? false : true;
+      // isValidation.isBudgetRequired = curData.BudgetAllocated ? false : true;
     }
-    if (!curData.BudgetProposed || _isDuplicate) {
-      _isValid = false;
-      isValidation.isBudgetRequired = curData.BudgetProposed ? false : true;
-      isValidation.isDescription = _isDuplicate
-        ? _isDuplicate
-        : curData.Description.trim()
-        ? false
-        : true;
-    }
-
-    if (!curData.Description.trim() && !curData.BudgetProposed) {
-      alertify.error("Please enter description and budget propsed");
-    } else if (
-      (!curData.Description.trim() || _isDuplicate) &&
-      !curData.BudgetProposed
-    ) {
-      _isDuplicate && !curData.BudgetProposed
-        ? alertify.error(
-            "Already description exists and Please enter budget propsed"
-          )
-        : !curData.Description.trim()
-        ? alertify.error("Please enter description")
-        : _isDuplicate
-        ? alertify.error("Already description exists")
-        : !curData.Description.trim() &&
-          alertify.error("Please enter description");
-    } else if (_isDuplicate || !curData.Description.trim()) {
-      !curData.Description.trim()
-        ? alertify.error("Please enter description")
-        : alertify.error("Already description exists");
-    } else if (!curData.BudgetProposed) {
-      alertify.error("Please enter budget propsed");
-    } else if (!curData.Description.trim()) {
+    if (!curData.Description.trim()) {
       alertify.error("Please enter description");
+    } else if (_isDuplicate) {
+      alertify.error("Already description exists");
     }
+    // if (!curData.BudgetProposed || _isDuplicate) {
+    //   _isValid = false;
+    //   isValidation.isBudgetRequired = curData.BudgetProposed ? false : true;
+    //   isValidation.isDescription = _isDuplicate
+    //     ? _isDuplicate
+    //     : curData.Description.trim()
+    //     ? false
+    //     : true;
+    // }
+
+    // if (!curData.Description.trim() && !curData.BudgetProposed) {
+    //   alertify.error("Please enter description and budget propsed");
+    // } else if (
+    //   (!curData.Description.trim() || _isDuplicate) &&
+    //   !curData.BudgetProposed
+    // ) {
+    //   _isDuplicate && !curData.BudgetProposed
+    //     ? alertify.error(
+    //         "Already description exists and Please enter budget propsed"
+    //       )
+    //     : !curData.Description.trim()
+    //     ? alertify.error("Please enter description")
+    //     : _isDuplicate
+    //     ? alertify.error("Already description exists")
+    //     : !curData.Description.trim() &&
+    //       alertify.error("Please enter description");
+    // } else if (_isDuplicate || !curData.Description.trim()) {
+    //   !curData.Description.trim()
+    //     ? alertify.error("Please enter description")
+    //     : alertify.error("Already description exists");
+    // } else if (!curData.BudgetProposed) {
+    //   alertify.error("Please enter budget propsed");
+    // } else if (!curData.Description.trim()) {
+    //   alertify.error("Please enter description");
+    // }
 
     // for (let n: number = 0; _arrOfMaster.length > n; n++) {
     //   let _count: number = 0;
@@ -1766,6 +1773,13 @@ const BudgetPlan = (props: any): JSX.Element => {
         let _TotalAmount: number = 0;
         curData.ID = _resAdd.data.ID;
         curData.CategoryType = "Sub Category";
+        curData.ApproveStatus =
+          isUserPermissions.isSuperAdmin ||
+          isUserPermissions.isEnterpricesManager ||
+          isUserPermissions.isInfraManager ||
+          isUserPermissions.isSpecialManager
+            ? Config.ApprovalStatus.Pending
+            : curData.ApproveStatus;
         _Items.push({ ...curData });
 
         for (let i: number = 0; _Items.length > i; i++) {
@@ -1797,7 +1811,7 @@ const BudgetPlan = (props: any): JSX.Element => {
         }
       })
       .catch((err: any) => {
-        _getErrorFunction(err);
+        _getErrorFunction(err, "Add budget list");
       });
   };
 
@@ -1858,7 +1872,7 @@ const BudgetPlan = (props: any): JSX.Element => {
         }
       })
       .catch((err: any) => {
-        _getErrorFunction(err);
+        _getErrorFunction(err, "Get edit");
       });
   };
 
@@ -1894,7 +1908,7 @@ const BudgetPlan = (props: any): JSX.Element => {
         _prepareArrMasterDatas([..._emptyGroup], [..._arrNewBudget]);
       })
       .catch((err: any) => {
-        _getErrorFunction(err);
+        _getErrorFunction(err, "get update category");
       });
   };
 
@@ -1956,7 +1970,7 @@ const BudgetPlan = (props: any): JSX.Element => {
       _curNewBudgetArray = [];
 
       _curIdRemoveArray = _curMasterArray[j].subCategory.filter(
-        (e: ICurBudgetItem) => e.ID !== null
+        (e: ICurBudgetItem) => e.ID !== null && e.BudgetProposed != 0
       );
 
       _curNewBudgetArray =
@@ -1990,14 +2004,14 @@ const BudgetPlan = (props: any): JSX.Element => {
         } else {
           _isFunTriger = false;
           setIsSubModal(false);
-          setIsSubmitModal(true);
+          // setIsSubmitModal(true);
           break _loop;
         }
       } else {
         if (_curIdRemoveArray.length) {
           _isFunTriger = false;
-          setIsSubModal(false);
-          setIsAllocateMSG(true);
+          // setIsSubModal(false);
+          // setIsAllocateMSG(true);
           break _loop;
         }
       }
@@ -2036,7 +2050,7 @@ const BudgetPlan = (props: any): JSX.Element => {
             data.length === i + 1 && setIsTrigger(!isTrigger);
           })
           .catch((err: any) => {
-            _getErrorFunction(err);
+            _getErrorFunction(err, "Get update bulk data");
           });
       } else if (i === 1) {
         setIsTrigger(!isTrigger);
@@ -2054,7 +2068,7 @@ const BudgetPlan = (props: any): JSX.Element => {
         alertify.success(`Please wait ${nextYear} year data's processing.`);
       })
       .catch((err: any) => {
-        _getErrorFunction(err);
+        _getErrorFunction(err, "Add year");
       });
   };
 
@@ -2082,7 +2096,7 @@ const BudgetPlan = (props: any): JSX.Element => {
         _getDefaultFunction();
       })
       .catch((err: any) => {
-        _getErrorFunction(err);
+        _getErrorFunction(err, "handle update json");
       });
   };
 
@@ -2442,7 +2456,7 @@ const BudgetPlan = (props: any): JSX.Element => {
       </Modal>
 
       {/* modal of over all submit */}
-      <Modal isOpen={isSubmitModal} isBlocking={false} styles={modalStyles}>
+      {/* <Modal isOpen={isSubmitModal} isBlocking={false} styles={modalStyles}>
         <div>
           <div className={styles.deleteIconCircle}>
             <IconButton
@@ -2462,7 +2476,6 @@ const BudgetPlan = (props: any): JSX.Element => {
             Please export and import to update.
           </Label>
 
-          {/* btn section */}
           <div
             style={{
               display: "flex",
@@ -2481,10 +2494,10 @@ const BudgetPlan = (props: any): JSX.Element => {
             </button>
           </div>
         </div>
-      </Modal>
+      </Modal> */}
 
       {/* modal of allocate msg */}
-      <Modal isOpen={isAllocateMSG} isBlocking={false} styles={modalStyles}>
+      {/* <Modal isOpen={isAllocateMSG} isBlocking={false} styles={modalStyles}>
         <div>
           <div className={styles.deleteIconCircle}>
             <IconButton
@@ -2509,7 +2522,6 @@ const BudgetPlan = (props: any): JSX.Element => {
             Allocated details.
           </Label>
 
-          {/* btn section */}
           <div
             style={{
               display: "flex",
@@ -2528,7 +2540,7 @@ const BudgetPlan = (props: any): JSX.Element => {
             </button>
           </div>
         </div>
-      </Modal>
+      </Modal> */}
 
       {/* modal section*/}
       <Modal isOpen={isNextYearModal} isBlocking={false} styles={modalStyles}>

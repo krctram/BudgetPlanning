@@ -48,6 +48,7 @@ let isUserPermissions: IGroupUsers;
 let _arrOfMaster: IOverAllItem[] = [];
 let _isAdminView: boolean = false;
 let _selID: number = null;
+let _isManager: boolean = false;
 
 const BudgetDistribution = (props: any): JSX.Element => {
   /* Variable creation */
@@ -55,6 +56,17 @@ const BudgetDistribution = (props: any): JSX.Element => {
   propDropValue = { ...props.dropValue };
   let _curYear: string = moment().format("YYYY");
   isUserPermissions = { ...props.groupUsers };
+  let _isApprover =
+    props.groupUsers.isEnterpricesManager ||
+    props.groupUsers.isInfraManager ||
+    props.groupUsers.isSpecialManager ||
+    props.groupUsers.isSuperAdmin;
+  let _isEditor =
+    props.groupUsers.isEnterpricesAdmin ||
+    props.groupUsers.isInfraAdmin ||
+    props.groupUsers.isSpecialAdmin ||
+    props.groupUsers.isSuperAdmin ||
+    props.groupUsers.isSuperAdminView;
 
   const _budgetPlanColumns: IColumn[] = [
     {
@@ -181,7 +193,7 @@ const BudgetDistribution = (props: any): JSX.Element => {
     {
       key: "column9",
       name: "Action",
-      minWidth: 50,
+      minWidth: 70,
       maxWidth: 80,
       onRender: (item: any) => {
         return (
@@ -198,23 +210,8 @@ const BudgetDistribution = (props: any): JSX.Element => {
               }}
             />
             {item.VendorStatus !== "Approved" && (
-              <div>
-                {props.groupUsers.isEnterpricesAdmin ||
-                props.groupUsers.isInfraAdmin ||
-                props.groupUsers.isSpecialAdmin ? (
-                  <Icon
-                    iconName="Add"
-                    style={{
-                      color: "blue",
-                      fontSize: "16px",
-                      cursor: "pointer",
-                    }}
-                    onClick={() => {
-                      _getVendorNave("vendorconfig", null);
-                      setSubCatDet(item);
-                    }}
-                  />
-                ) : (
+              <div style={{ display: "flex", gap: "10px" }}>
+                {_isApprover && (
                   <Icon
                     iconName="PageArrowRight"
                     style={{
@@ -225,6 +222,22 @@ const BudgetDistribution = (props: any): JSX.Element => {
                     onClick={() => {
                       _getVendorNave("vendorconfig", null);
                       setSubCatDet(item);
+                      _isManager = true;
+                    }}
+                  />
+                )}
+                {_isEditor && (
+                  <Icon
+                    iconName="Add"
+                    style={{
+                      color: "blue",
+                      fontSize: "16px",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => {
+                      _getVendorNave("vendorconfig", null);
+                      setSubCatDet(item);
+                      _isManager = false;
                     }}
                   />
                 )}
@@ -383,9 +396,10 @@ const BudgetDistribution = (props: any): JSX.Element => {
   };
 
   /* function creation */
-  const _getErrorFunction = (errMsg: any): void => {
+  const _getErrorFunction = (errMsg: any, name: string): void => {
     setIsLoader(false);
-    alertify.error(errMsg);
+    console.log(name, errMsg);
+    alertify.error(name);
   };
 
   const _getDefaultFunction = (): void => {
@@ -485,7 +499,7 @@ const BudgetDistribution = (props: any): JSX.Element => {
         }
       })
       .catch((err: any) => {
-        _getErrorFunction("Get category datas");
+        _getErrorFunction(err, "Get category datas");
       });
   };
 
@@ -605,7 +619,7 @@ const BudgetDistribution = (props: any): JSX.Element => {
         }
       })
       .catch((err: any) => {
-        _getErrorFunction("Get budget datas");
+        _getErrorFunction(err, "Get budget datas");
       });
   };
 
@@ -795,7 +809,7 @@ const BudgetDistribution = (props: any): JSX.Element => {
         setUserDatas([]);
       })
       .catch((err: any) => {
-        _getErrorFunction("Add admin datas");
+        _getErrorFunction(err, "Add admin datas");
       });
   };
 
@@ -850,6 +864,7 @@ const BudgetDistribution = (props: any): JSX.Element => {
       groupUsers={props.groupUsers}
       dropValue={props.dropValue}
       subCatDet={subCatDet}
+      _isManager={_isManager}
     />
   ) : // <VendorConfig
   //   _getVendorNave={_getVendorNave}

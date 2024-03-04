@@ -28,6 +28,7 @@ import {
   IAttach,
   IBudList,
   ICateList,
+  IDrop,
   IUpdateJSON,
   IVenDrop,
   IVenList,
@@ -36,19 +37,41 @@ import {
 import Loader from "./Loader";
 import { Config } from "../../../globals/Config";
 import { Item } from "@pnp/sp/items";
+import alertify from "alertifyjs";
+import "alertifyjs/build/css/alertify.css";
 
 let TextFieldVal: boolean = false;
 
-const VendorAdd = (props: any) => {
-  console.log("props", props);
+interface IMasCatUni {
+  ID: number;
+  OverAllRemainingCost: number;
+  OverAllBudgetCost: number;
+  OverAllPOIssuedCost: number;
+}
 
+interface ISubCatUni {
+  ID: number;
+  RemainingCost: number;
+  BudgetAllocated: number;
+  Used: number;
+}
+
+interface IDelete {
+  isDelete: boolean;
+  Id: number;
+  index: number;
+}
+
+interface IAppReject {
+  Flag: boolean;
+  Name: string;
+  Value: string;
+  error: boolean;
+}
+
+const VendorAdd = (props: any) => {
   // Local Variables
-  let TextFieldConfirm: boolean =
-    props.groupUsers.isEnterpricesAdmin ||
-    props.groupUsers.isInfraAdmin ||
-    props.groupUsers.isSpecialAdmin
-      ? false
-      : true;
+  let TextFieldConfirm: boolean = props._isManager;
 
   // Columns
   const _VendorColumn: IColumn[] = [
@@ -446,10 +469,10 @@ const VendorAdd = (props: any) => {
   // Use States
 
   const [isLoader, setIsLoader] = useState<boolean>(true);
-  const [Error, setError] = useState("");
-  const [MData, setMData] = useState([]);
+  const [Error, setError] = useState<string>("");
+  const [MData, setMData] = useState<IVendorData[]>([]);
   const [FData, setFData] = useState<IVendorData[]>([]);
-  const [isAppRejModal, setIsAppRejModal] = useState<any>({
+  const [isAppRejModal, setIsAppRejModal] = useState<IAppReject>({
     Flag: false,
     Name: "",
     Value: "",
@@ -460,17 +483,18 @@ const VendorAdd = (props: any) => {
     confirm: false,
     edit: false,
   });
-  const [vendorDropName, setVendorDropName] = useState([]);
-  const [vendorValue, setVendorValue] = useState<IDropdownOption>();
-  const [vendorDetails, setVendorDetails] = useState([]);
-  const [MasCatUniData, setMasCatUniData] = useState([]);
-  const [SubCatUniData, setSubCatUniData] = useState([]);
-  const [selItems, setSelItems] = useState([]);
-  const [isDeleteModal, setIsDeleteModal] = useState({
+  const [vendorDropName, setVendorDropName] = useState<IDrop[]>([]);
+  // const [vendorValue, setVendorValue] = useState<IDropdownOption>();
+  // const [vendorDetails, setVendorDetails] = useState([]);
+  const [MasCatUniData, setMasCatUniData] = useState<IMasCatUni[]>([]);
+  const [SubCatUniData, setSubCatUniData] = useState<ISubCatUni[]>([]);
+  const [selItems, setSelItems] = useState<IVendorData[]>([]);
+  const [isDeleteModal, setIsDeleteModal] = useState<IDelete>({
     isDelete: false,
     Id: null,
     index: null,
   });
+
   // Styles
   const _DetailsListStyle: Partial<IDetailsListStyles> = {
     root: {
@@ -641,12 +665,14 @@ const VendorAdd = (props: any) => {
   };
 
   // All Functions
-  const GetErrFunctions = (type: string) => {
-    alert(type);
+  const GetErrFunctions = (errMsg: any, name: string) => {
+    console.log(name, errMsg);
+    alertify.error(name);
+    setIsLoader(false);
   };
 
   const AllFunctions = () => {
-    setIsLoader(false);
+    setIsLoader(true);
     GetMasterCategory();
     // GetAllData();
   };
@@ -674,7 +700,7 @@ const VendorAdd = (props: any) => {
 
         GetBudgetData(tempData);
       })
-      .catch(() => GetErrFunctions("Master Category get error"));
+      .catch((err) => GetErrFunctions(err, "Master Category get error"));
   };
 
   const GetBudgetData = (masterCategory: any) => {
@@ -694,7 +720,7 @@ const VendorAdd = (props: any) => {
 
         GetAllData(masterCategory, budgetData);
       })
-      .catch(() => GetErrFunctions("Budget data get error"));
+      .catch((err) => GetErrFunctions(err, "Budget data get error"));
   };
 
   const GetAllData = (masterCategory, budgetData) => {
@@ -703,22 +729,27 @@ const VendorAdd = (props: any) => {
       Select:
         "*, Category/ID, Category/Title, Budget/ID, Budget/Description, Country/ID, Country/Title, AttachmentFiles",
       Expand: "Category, Budget, Country, AttachmentFiles",
-      //   Filter: [
-      //     {
-      //       FilterKey: "CountryId",
-      //       Operator: "eq",
-      //       FilterValue: props.subCatDet.CounId,
-      //     },
-      //     {
-      //       FilterKey: "Area",
-      //       Operator: "eq",
-      //       FilterValue: props.subCatDet.Area,
-      //     },
-      //   ],
+      Filter: [
+        //     {
+        //       FilterKey: "CountryId",
+        //       Operator: "eq",
+        //       FilterValue: props.subCatDet.CounId,
+        //     },
+        // {
+        //   FilterKey: "Area",
+        //   Operator: "eq",
+        //   FilterValue: props.subCatDet.Area,
+        // },
+        {
+          FilterKey: "CategoryType",
+          Operator: "eq",
+          FilterValue: props.subCatDet.Type,
+        },
+      ],
     })
       .then((res: any) => {
-        let vendorNameArray = [];
-        let VendorDetailsData: any[] = [];
+        let vendorNameArray: IDrop[] = [];
+        let VendorDetailsData: IVendorData[] = [];
 
         if (res.length)
           for (let i: number = 0; res.length > i; i++) {
@@ -776,14 +807,14 @@ const VendorAdd = (props: any) => {
 
         setVendorDropName([...vendorNameArray]);
         setMData([...VendorDetailsData]);
-        GetVendorDetails(masterCategory, budgetData);
+        GetVendorDetails(masterCategory, VendorDetailsData);
       })
-      .catch((res: any) => {
-        GetErrFunctions("Category List Reading error");
+      .catch((err: any) => {
+        GetErrFunctions(err, "Category List Reading error");
       });
   };
 
-  const GetVendorDetails = (masterCategory, budgetData) => {
+  const GetVendorDetails = (masterCategory, VendorConfig) => {
     SPServices.SPReadItems({
       Listname: Config.ListNames.VendorDetails,
       Select:
@@ -818,24 +849,23 @@ const VendorAdd = (props: any) => {
       ],
     })
       .then((res: any) => {
-        console.log("vendor", res);
-
-        let VendorDetailsData: any[] = [];
-        let BudUniqData: any[] = [];
-        let CatUniData: any[] = [];
+        let VendorDetailsData: IVendorData[] = [];
+        let BudUniqData: ISubCatUni[] = [];
+        let CatUniData: IMasCatUni[] = [];
         if (res.length) {
           for (let i: number = 0; res.length > i; i++) {
-            let _Attach: IAttach[] = [];
-
-            res[i].AttachmentFiles.length &&
-              res[i].AttachmentFiles.forEach((e: any) => {
-                _Attach.push({
-                  Name: e.FileName ? e.FileName : "",
-                  Path: e.ServerRelativePath.DecodedUrl
-                    ? e.ServerRelativePath.DecodedUrl
-                    : "",
-                });
-              });
+            // res[i].AttachmentFiles.length &&
+            //   res[i].AttachmentFiles.forEach((e: any) => {
+            //     _Attach.push({
+            //       Name: e.FileName ? e.FileName : "",
+            //       Path: e.ServerRelativePath.DecodedUrl
+            //         ? e.ServerRelativePath.DecodedUrl
+            //         : "",
+            //     });
+            //   });
+            let _Attach = VendorConfig.filter((VenCon) => {
+              return VenCon.ID == res[i].VendorConfigId;
+            });
             if (
               res[i].BudgetId &&
               [...BudUniqData].every((val) => val.ID != res[i].BudgetId)
@@ -894,7 +924,7 @@ const VendorAdd = (props: any) => {
               RequestedAmount: res[i].RequestedAmount
                 ? res[i].RequestedAmount
                 : 0,
-              Attachments: [..._Attach],
+              Attachments: _Attach.length ? _Attach[0].Attachments : [],
               index: null,
               curDetailsArr: [],
               arrKeys: [],
@@ -911,16 +941,144 @@ const VendorAdd = (props: any) => {
           setSubCatUniData([...BudUniqData]);
           setMasCatUniData([...CatUniData]);
           setFData([...VendorDetailsData]);
-          console.log("butget", BudUniqData);
-          console.log("category", CatUniData);
         } else {
+          if (props.groupUsers.isSuperAdmin) {
+            BudUniqData.push({
+              ID: props.subCatDet.ID,
+              RemainingCost: props.subCatDet.RemainingCost
+                ? props.subCatDet.RemainingCost
+                : 0,
+              BudgetAllocated: props.subCatDet.BudgetAllocated
+                ? props.subCatDet.BudgetAllocated
+                : 0,
+              Used: props.subCatDet.Used ? props.subCatDet.Used : 0,
+            });
+            CatUniData.push({
+              ID: props.subCatDet.CateId,
+              OverAllRemainingCost: props.subCatDet.OverAllRemainingCost
+                ? props.subCatDet.OverAllRemainingCost
+                : 0,
+
+              OverAllBudgetCost: props.subCatDet.OverAllBudgetCost
+                ? props.subCatDet.OverAllBudgetCost
+                : 0,
+              OverAllPOIssuedCost: props.subCatDet.OverAllPOIssuedCost
+                ? props.subCatDet.OverAllPOIssuedCost
+                : 0,
+            });
+            setSubCatUniData([...BudUniqData]);
+            setMasCatUniData([...CatUniData]);
+          }
+          setIsLoader(false);
           setFData([]);
         }
       })
-      .catch((res: any) => {
-        GetErrFunctions("Vendor List Reading error");
-        console.log("vendorerr", res);
+      .catch((err: any) => {
+        GetErrFunctions(err, "Vendor List Reading error");
       });
+  };
+
+  const superAdminGetApproveData = () => {
+    if (Validation()) {
+      setIsLoader(true);
+      setError("");
+      let AddVendorData = [];
+      let UpdateVendorData = [];
+      let NewVendorData = [];
+      FData.forEach((value: any) => {
+        if (value.ID && value.VendorConfig) {
+          UpdateVendorData.push({
+            ID: value.ID,
+            Title: value.Description,
+            CategoryType: value.Type,
+            VendorName: value.VendorName,
+            Payment: value.Payment,
+            Delivery: value.Delivery,
+            LastYearPO: value.LastYearPO,
+            Recommended: value.Recommended,
+            Year: value.Year,
+            Status: "Approved",
+            Comment: value.Comment,
+            Area: value.Area,
+            CountryId: value.CountryId,
+            Price: value.Price,
+            LastYearCost: value.LastYearCost,
+            RequestedAmount: value.RequestedAmount,
+            BudgetId: props.subCatDet.ID,
+            CategoryId: value.CategoryId,
+            VendorConfigId: value.VendorConfig,
+          });
+        } else if (value.VendorConfig) {
+          AddVendorData.push({
+            Title: value.Description,
+            CategoryType: value.Type,
+            VendorName: value.VendorName,
+            Payment: value.Payment,
+            Delivery: value.Delivery,
+            LastYearPO: value.LastYearPO,
+            Recommended: value.Recommended,
+            Year: value.Year,
+            Status: "Approved",
+            Comment: value.Comment,
+            Area: value.Area,
+            CountryId: value.CountryId,
+            Price: value.Price,
+            LastYearCost: value.LastYearCost,
+            RequestedAmount: value.RequestedAmount,
+            BudgetId: props.subCatDet.ID,
+            CategoryId: value.CategoryId,
+            VendorConfigId: value.VendorConfig,
+          });
+        }
+      });
+
+      if (AddVendorData.length) {
+        for (let i = 0; i < AddVendorData.length; i++) {
+          SPServices.SPAddItem({
+            Listname: Config.ListNames.VendorDetails,
+            RequestJSON: AddVendorData[i],
+          })
+            .then((insertVal) => {
+              NewVendorData.push({
+                ...AddVendorData[i],
+                ID: insertVal.data.ID,
+              });
+              if (i === AddVendorData.length - 1) {
+                if (UpdateVendorData.length) {
+                  SPServices.batchUpdate({
+                    ListName: Config.ListNames.VendorDetails,
+                    responseData: UpdateVendorData,
+                  })
+                    .then((res: any) => {
+                      handleCal([...NewVendorData, ...UpdateVendorData]);
+                      setSelItems([...NewVendorData, ...UpdateVendorData]);
+                    })
+                    .catch((err) => GetErrFunctions(err, "Update error"));
+                } else {
+                  handleCal([...NewVendorData]);
+                  setSelItems([...NewVendorData]);
+                }
+              }
+            })
+            .catch((err) => GetErrFunctions(err, "Update error"));
+        }
+      } else if (UpdateVendorData.length) {
+        SPServices.batchUpdate({
+          ListName: Config.ListNames.VendorDetails,
+          responseData: UpdateVendorData,
+        })
+          .then((res: any) => {
+            setSelItems([...UpdateVendorData]);
+            handleCal([...UpdateVendorData]);
+          })
+          .catch((err) => GetErrFunctions(err, "Update error"));
+      } else {
+        props._getVendorNave("");
+        setIsLoader(false);
+      }
+    } else {
+      setError("Please check already exist this data");
+    }
   };
 
   const _handleOnChange = (
@@ -929,8 +1087,8 @@ const VendorAdd = (props: any) => {
     name: string,
     index: number
   ) => {
-    const tempFData = [...FData];
-    const tempMData = [...MData];
+    const tempFData: IVendorData[] = [...FData];
+    const tempMData: IVendorData[] = [...MData];
 
     if (name === "vendorName") {
       // setVendorValue(textValue.text);
@@ -1076,6 +1234,7 @@ const VendorAdd = (props: any) => {
     //     TextFieldVal = false;
     //   }
   };
+
   const Validation = () => {
     let duplicateCheck = [];
     let validatedata = [...FData].filter((val) => {
@@ -1092,8 +1251,10 @@ const VendorAdd = (props: any) => {
     });
     return validatedata.length == duplicateCheck.length ? true : false;
   };
+
   const _UpdateData = () => {
     if (Validation()) {
+      setIsLoader(true);
       setError("");
       let AddVendorData = [];
       let UpdateVendorData = [];
@@ -1164,10 +1325,11 @@ const VendorAdd = (props: any) => {
                   })
                     .then((budUpdate) => {
                       props._getVendorNave("");
+                      setIsLoader(false);
                     })
-                    .catch((err) => console.log(err));
+                    .catch((err) => GetErrFunctions(err, "Update budget list"));
                 })
-                .catch(() => GetErrFunctions("Update error"));
+                .catch((err) => GetErrFunctions(err, "Update error"));
             } else {
               SPServices.SPUpdateItem({
                 Listname: Config.ListNames.BudgetList,
@@ -1176,11 +1338,12 @@ const VendorAdd = (props: any) => {
               })
                 .then((budUpdate) => {
                   props._getVendorNave("");
+                  setIsLoader(false);
                 })
-                .catch((err) => console.log(err));
+                .catch((err) => GetErrFunctions(err, "Update budget list"));
             }
           })
-          .catch(() => GetErrFunctions("Update error"));
+          .catch((err) => GetErrFunctions(err, "Update error"));
       } else if (UpdateVendorData.length) {
         SPServices.batchUpdate({
           ListName: Config.ListNames.VendorDetails,
@@ -1194,15 +1357,17 @@ const VendorAdd = (props: any) => {
             })
               .then((budUpdate) => {
                 props._getVendorNave("");
+                setIsLoader(false);
               })
-              .catch((err) => console.log(err));
+              .catch((err) => GetErrFunctions(err, "Update budget list"));
           })
-          .catch(() => GetErrFunctions("Update error"));
+          .catch((err) => GetErrFunctions(err, "Update error"));
       } else {
         props._getVendorNave("");
+        setIsLoader(false);
       }
     } else {
-      setError("Please check");
+      setError("Please check already exist this data");
     }
   };
 
@@ -1213,7 +1378,7 @@ const VendorAdd = (props: any) => {
     },
   });
 
-  const handleCal = (): void => {
+  const handleCal = (selectedItems): void => {
     let _overAllAllocated: number = 0;
     let _overAllUsed: number = 0;
     let _overAllRemaining: number = 0;
@@ -1233,12 +1398,12 @@ const VendorAdd = (props: any) => {
       _overAllUsed = Number(MasCatUniData[i].OverAllPOIssuedCost);
       _overAllRemaining = Number(MasCatUniData[i].OverAllRemainingCost);
 
-      for (let j: number = 0; selItems.length > j; j++) {
-        if (MasCatUniData[i].ID === selItems[j].CategoryId) {
-          _overAllUsed = _overAllUsed + Number(selItems[j].Price);
+      for (let j: number = 0; selectedItems.length > j; j++) {
+        if (MasCatUniData[i].ID === selectedItems[j].CategoryId) {
+          _overAllUsed = _overAllUsed + Number(selectedItems[j].Price);
         }
 
-        if (selItems.length === j + 1) {
+        if (selectedItems.length === j + 1) {
           _preCateList.push({
             ID: MasCatUniData[i].ID,
             OverAllPOIssuedCost: _overAllUsed,
@@ -1246,7 +1411,7 @@ const VendorAdd = (props: any) => {
           });
         }
 
-        if (selItems.length === j + 1 && MasCatUniData.length === i + 1) {
+        if (selectedItems.length === j + 1 && MasCatUniData.length === i + 1) {
           _isCate = true;
           _updateLists.push({
             ListName: Config.ListNames.CategoryList,
@@ -1261,12 +1426,12 @@ const VendorAdd = (props: any) => {
       _subUsed = Number(SubCatUniData[i].Used);
       _subRemaining = Number(SubCatUniData[i].RemainingCost);
 
-      for (let j: number = 0; selItems.length > j; j++) {
-        if (SubCatUniData[i].ID === selItems[j].BudgetId) {
-          _subUsed = _subUsed + Number(selItems[j].Price);
+      for (let j: number = 0; selectedItems.length > j; j++) {
+        if (SubCatUniData[i].ID === selectedItems[j].BudgetId) {
+          _subUsed = _subUsed + Number(selectedItems[j].Price);
         }
 
-        if (selItems.length === j + 1) {
+        if (selectedItems.length === j + 1) {
           _preBudList.push({
             ID: SubCatUniData[i].ID,
             Used: _subUsed,
@@ -1274,7 +1439,7 @@ const VendorAdd = (props: any) => {
           });
         }
 
-        if (selItems.length === j + 1 && SubCatUniData.length === i + 1) {
+        if (selectedItems.length === j + 1 && SubCatUniData.length === i + 1) {
           _isBud = true;
           _updateLists.push({
             ListName: Config.ListNames.BudgetList,
@@ -1284,14 +1449,14 @@ const VendorAdd = (props: any) => {
       }
     }
 
-    for (let i: number = 0; selItems.length > i; i++) {
+    for (let i: number = 0; selectedItems.length > i; i++) {
       _preVenList.push({
-        ID: selItems[i].ID,
+        ID: selectedItems[i].ID,
         Comment: isAppRejModal.Value,
         Status: "Approved",
       });
 
-      if (selItems.length === i + 1) {
+      if (selectedItems.length === i + 1) {
         _isVen = true;
         _updateLists.push({
           ListName: Config.ListNames.VendorDetails,
@@ -1335,11 +1500,11 @@ const VendorAdd = (props: any) => {
               .then((budUpdate) => {
                 props._getVendorNave("");
               })
-              .catch((err) => console.log(err));
+              .catch((err) => GetErrFunctions(err, "Update budget list"));
           }
         })
         .catch((err: any) => {
-          GetErrFunctions(err);
+          GetErrFunctions(err, "Update calculation");
         });
     }
   };
@@ -1347,7 +1512,7 @@ const VendorAdd = (props: any) => {
   const AppRejComment = (status) => {
     let AppRejComment = [];
     if (status == "Approved") {
-      handleCal();
+      handleCal(selItems);
     } else {
       selItems.forEach((val) => {
         AppRejComment.push({
@@ -1369,9 +1534,9 @@ const VendorAdd = (props: any) => {
             .then((budUpdate) => {
               props._getVendorNave("");
             })
-            .catch((err) => console.log(err));
+            .catch((err) => GetErrFunctions(err, "Update budget list"));
         })
-        .catch(() => GetErrFunctions("Update error"));
+        .catch((err) => GetErrFunctions(err, "Update error"));
     }
   };
 
@@ -1387,13 +1552,15 @@ const VendorAdd = (props: any) => {
         setFData([...FData]);
         setIsDeleteModal({ isDelete: false, Id: null, index: null });
       })
-      .catch((err) => console.log(err));
+      .catch((err) => GetErrFunctions(err, "Delete vendor details"));
   };
   useEffect(() => {
     AllFunctions();
   }, []);
 
-  return (
+  return isLoader ? (
+    <Loader />
+  ) : (
     <div>
       <div>
         <div className={styles.Header}>
@@ -1419,6 +1586,8 @@ const VendorAdd = (props: any) => {
                   setIsAppRejModal({
                     Flag: true,
                     Name: "Approve",
+                    Value: "",
+                    error: false,
                   });
                 }
               }}
@@ -1434,6 +1603,8 @@ const VendorAdd = (props: any) => {
                   setIsAppRejModal({
                     Flag: true,
                     Name: "Reject",
+                    Value: "",
+                    error: false,
                   });
                 }
               }}
@@ -1466,7 +1637,11 @@ const VendorAdd = (props: any) => {
               text="Save"
               styles={btnStyle}
               onClick={() => {
-                _UpdateData();
+                if (FData.length && props.groupUsers.isSuperAdmin) {
+                  superAdminGetApproveData();
+                } else if (FData.length) {
+                  _UpdateData();
+                }
                 //   setIsModal(true);
                 // _calArray.length && setIsModal(true);
               }}
@@ -1551,7 +1726,7 @@ const VendorAdd = (props: any) => {
               }
             }}
           >
-            {isAppRejModal.Name == "Approve" ? "Approved" : "Rejected"}
+            Submit
           </button>
         </div>
       </Modal>
