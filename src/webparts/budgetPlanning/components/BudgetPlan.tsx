@@ -330,7 +330,7 @@ const BudgetPlan = (props: any): JSX.Element => {
     },
     {
       key: "column8",
-      name: "Remaining",
+      name: "Budget Variance",
       minWidth: 100,
       maxWidth: 130,
       onRender: (item: any) => {
@@ -1368,18 +1368,24 @@ const BudgetPlan = (props: any): JSX.Element => {
 
   const _groupAcc = (newRecords: any[]): void => {
     let varGroup: any[] = [];
+
     newRecords.forEach((ur: any, index: number) => {
-      let recordLength: number = _masRecords.filter((arr: ICurBudgetItem) => {
+      let record = _masRecords.filter((arr: ICurBudgetItem) => {
         return (
           arr.CateId === ur.ID && arr.Type === ur.Type && arr.Area === ur.Area
         );
-      }).length;
+      });
 
       let _totalAmount: string = ur.OverAllBudgetCost
         ? ur.OverAllBudgetCost.toString()
         : ur.TotalProposed
         ? ur.TotalProposed.toString()
         : "0";
+
+      let totalUsedAmt: number = 0;
+      record.forEach((val: ICurBudgetItem) => {
+        totalUsedAmt = Number(val.Used) + Number(totalUsedAmt);
+      });
 
       varGroup.push({
         key: ur.Category,
@@ -1403,6 +1409,7 @@ const BudgetPlan = (props: any): JSX.Element => {
               <div
                 style={{
                   marginLeft: 6,
+                  display: "flex",
                 }}
               >
                 <span
@@ -1412,6 +1419,17 @@ const BudgetPlan = (props: any): JSX.Element => {
                 >
                   AED
                 </span>
+                <p
+                  style={{
+                    margin: "0 7px",
+                    color: ur.OverAllBudgetCost ? "#E39C5A" : "#a7a700",
+                  }}
+                >
+                  {`(Total Remaining Balance -
+                  ${SPServices.format(
+                    Number(_totalAmount) - Number(totalUsedAmt)
+                  )})`}
+                </p>
                 {SPServices.format(Number(_totalAmount))}
               </div>
 
@@ -1446,7 +1464,7 @@ const BudgetPlan = (props: any): JSX.Element => {
           ur.Category
         ),
         startIndex: ur.indexValue,
-        count: recordLength,
+        count: record.length,
       });
 
       if (index == newRecords.length - 1) {
